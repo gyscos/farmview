@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<title>Console</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<meta http-equiv="refresh" content="60">
+	</head>
+	<body>
+		<div class="container">
+			{{range .Hosts}}
+			<div class="machine">
+				<div class="title">{{.Name}}</div>
+				<div class="ping">
+					<div class="label">Ping:</div>
+					<div class="value">355ms</div>
+				</div>
+				{{if .Online}}
+					<div class="uptime">
+						<div class="label"><span title="{{.NCpu}} CPUs">Load:</span></div>
+						<div class="uptime_value1">{{index .Load 1}}</div>
+						<div class="uptime_value2">{{index .Load 2}}</div>
+						<div class="uptime_value0">{{index .Load 0}}</div>
+					</div>
+					<div class="memory">
+						<div class="label">RAM:</div>
+						<div class="value">{{.RamUsage.PercentUsed}}%</div>
+					</div>
+					<div class="disks">
+						<div class="label">Disks:</div>
+						<div class="value">Usage</div>
+						{{range .DiskUsage}}
+							<div class="label"><span title="{{.Mount}}">{{.Name}}</span></div>
+							<div class="value">{{.PercentUsed}}%</div>
+						{{end}}
+					</div>
+				{{else}}
+					<div class="offline">OFFLINE</div>
+				{{end}}
+			</div>
+			{{end}}
+		</div>
+	</body>
+</html>

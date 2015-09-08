@@ -1,0 +1,29 @@
+[http]
+	port = 8080
+
+[default]
+	login = 'test'
+	# keypair = '/path/to/keypair.pem'
+	password = 'password'
+
+
+[[hosts]]
+	name = 'My host 1'
+	address = '127.0.0.1'
+	disks = ['/dev/sda1']
+
+	# Auth config can be overriden per-host
+	[hosts.auth]
+		login = 'myuser'
+		password = 'pass2'
+
+[[hosts]]
+	name = 'My host 2'
+	address = 'myhost.domain.org'
+	# Partial matches for disks are supported
+	disks = ['sda1', 'sdb1']
+
+[[hosts]]
+	name = 'My host 3'
+	address = 'something.else.com'
+	# Disks are optional

@@ -1,0 +1,84 @@
+.container {
+	vertical-align: top;
+}
+
+span {
+	text-decoration: underline;
+	cursor: default;
+}
+
+span:hover {
+	background: rgba(0, 0, 0, .1);
+}
+
+.machine {
+	vertical-align: top;
+	width: 200px;
+	border: 1px solid black;
+	display: inline-block;
+	border-radius: 5px;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+
+.title {
+	font-weight: bold;
+	font-size: 120%;
+	text-align: center;
+	background-color: lightgray;
+	border-bottom: 1px solid gray;
+}
+
+.label {
+	float: left;
+}
+
+.value {
+	text-align: right;
+}
+
+.uptime_value0 {
+	text-align: right;
+}
+.uptime_value1 {
+	text-align: right;
+	float: right;
+	padding-left: 10px;
+}
+.uptime_value2 {
+	text-align: right;
+	float: right;
+	padding-left: 10px;
+}
+
+.ping {
+	background-color: #DFD;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.uptime {
+	background-color: #AEA;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.memory {
+	background-color: #DFD;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.disks {
+	background-color: #AEA;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.offline {
+	background-color: #AAA;
+	text-align: center;
+	font-weight: bold;
+	font-size: 150%;
+	padding: 5px;
+}
