@@ -127,7 +127,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 	if err != nil {
 		log.Println(err)
 	}
-	if strings.Contains(lines[3], "Available") {
+	if strings.Contains(lines[lineId+2], "Available") {
 		availableK, err := strconv.ParseInt(strings.Fields(lines[lineId+2])[1], 10, 64)
 		if err != nil {
 			log.Println(err)
