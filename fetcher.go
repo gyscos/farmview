@@ -270,6 +270,7 @@ func (f *Fetcher) Fetch() Data {
 	for i := 0; i < count; i++ {
 		<-wc
 	}
+	data.UpdateTime = time.Now().Format("2006-01-02 at 15:04")
 
 	// log.Println("Fetched", data)
 

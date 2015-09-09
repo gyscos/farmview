@@ -2,6 +2,11 @@
 	vertical-align: top;
 }
 
+.update-time {
+	color: gray;
+	padding-left: 100px;
+}
+
 .columns {
 	-moz-column-width: 230px;
 	-moz-column-fill: balance;
