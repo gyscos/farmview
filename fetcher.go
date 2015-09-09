@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -85,24 +84,32 @@ func getPing(host string) (float64, error) {
 	sum := 0.0
 
 	lines := strings.Split(string(bytes), "\n")
-	if len(lines) < nPings+1 {
-		return 0.0, errors.New(fmt.Sprintf("Bad ping response:\n%v", lines))
-	}
+
+	nErrors := 0
 	for i := 0; i < nPings; i++ {
+		if i+1 >= len(lines) {
+			nErrors += 1
+			continue
+		}
 		fields := strings.Fields(lines[1+i])
 		if len(fields) < 2 {
-			return 0.0, errors.New(fmt.Sprintf("Bad ping response: %v", fields))
+			nErrors += 1
+			continue
 		}
 		n := len(fields) - 2
 		tokens := strings.Split(fields[n], "=")
 		ping, err := strconv.ParseFloat(tokens[1], 64)
 		if err != nil {
-			return 0.0, err
+			nErrors += 1
+			continue
 		}
 		sum += ping
 	}
+	if nErrors == nPings {
+		log.Println("Bad ping response:\n", string(bytes))
+	}
 
-	return sum / float64(nPings), nil
+	return sum / float64(nPings-nErrors), nil
 }
 
 func fillPing(hostData *HostData, address string) {
@@ -153,7 +160,7 @@ func (f *Fetcher) makeHostData(i int) (HostData, error) {
 
 	// Wait for ping job to complete
 	<-jc
-	log.Println("Host", host.Name, "ready")
+	// log.Println("Host", host.Name, "ready")
 	return hostData, nil
 }
 

@@ -2,21 +2,28 @@
 	vertical-align: top;
 }
 
-.titled {
-}
-
-.titled:hover {
+.columns {
+	-moz-column-width: 230px;
+	-moz-column-fill: balance;
+	-webkit-column-width: 230px;
+	-webkit-column-fill: balance;
+	column-width: 230px;
+	column-fill: balance;
 }
 
 .machine {
 	vertical-align: top;
-	width: 200px;
+	width: 220px;
 	border: 1px solid black;
 	display: inline-block;
 	border-radius: 5px;
 	overflow: hidden;
 	margin-bottom: 10px;
 	cursor: default;
+
+	-webkit-column-break-inside: avoid;
+	break-inside: avoid;
+	color: black;
 }
 
 .title {

@@ -7,53 +7,55 @@
 	</head>
 	<body>
 		<div class="container">
-			{{range .Hosts}}
-			<div class="machine">
-				<div class="title">{{.Name}}</div>
-				{{if .Online}}
-					<div style="background-color: #AEA">
-						<div class="inside">
-							<div class="label">Ping:</div>
-							<div class="value">{{.Ping}}ms</div>
-						</div>
-					</div>
-					{{if .Responsive}}
+			<div class="columns">
+				{{range .Hosts}}
+				<div class="machine">
+					<div class="title">{{.Name}}</div>
+					{{if .Online}}
 						<div style="background-color: #AEA">
-							<div class="inside" title="{{.NCpu}} CPUs">
-								<div class="label">Load:</div>
-								<div class="uptime_value1">{{index .Load 1}}</div>
-								<div class="uptime_value2">{{index .Load 2}}</div>
-								<div class="uptime_value0">{{index .Load 0}}</div>
+							<div class="inside">
+								<div class="label">Ping:</div>
+								<div class="value">{{.Ping}}ms</div>
 							</div>
 						</div>
-						<div class="memory" style="background-color: #AEA">
-							<div class="inside" title="Total: {{.RamUsage.TotalH}}">
-								<div class="label">RAM:</div>
-								<div class="value">{{.RamUsage.PercentUsed}}%</div>
-							</div>
-						</div>
-						<div class="disks">
-							<div class="disk-header">
-								<div class="label">Disks:</div>
-								<div class="value">Usage</div>
-							</div>
-							{{range .DiskUsage}}
-								<div style="background-color: #AEA">
-									<div class="inside" title="{{.Name}}: {{.TotalH}}">
-										<div class="label">{{.Mount}}</div>
-										<div class="value">{{.PercentUsed}}%</div>
-									</div>
+						{{if .Responsive}}
+							<div style="background-color: #AEA">
+								<div class="inside" title="{{.NCpu}} CPUs">
+									<div class="label">Load:</div>
+									<div class="uptime_value1">{{index .Load 1}}</div>
+									<div class="uptime_value2">{{index .Load 2}}</div>
+									<div class="uptime_value0">{{index .Load 0}}</div>
 								</div>
-							{{end}}
-						</div>
+							</div>
+							<div class="memory" style="background-color: #AEA">
+								<div class="inside" title="Total: {{.RamUsage.TotalH}}">
+									<div class="label">RAM:</div>
+									<div class="value">{{.RamUsage.PercentUsed}}%</div>
+								</div>
+							</div>
+							<div class="disks">
+								<div class="disk-header">
+									<div class="label">Disks:</div>
+									<div class="value">Usage</div>
+								</div>
+								{{range .DiskUsage}}
+									<div style="background-color: #AEA">
+										<div class="inside" title="{{.Name}}: {{.TotalH}}">
+											<div class="label">{{.Mount}}</div>
+											<div class="value">{{.PercentUsed}}%</div>
+										</div>
+									</div>
+								{{end}}
+							</div>
+						{{else}}
+							<div class="offline">UNRESPONSIVE</div>
+						{{end}}
 					{{else}}
-						<div class="offline">UNRESPONSIVE</div>
+						<div class="offline">OFFLINE</div>
 					{{end}}
-				{{else}}
-					<div class="offline">OFFLINE</div>
+				</div>
 				{{end}}
 			</div>
-			{{end}}
 		</div>
 	</body>
 </html>
