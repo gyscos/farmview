@@ -9,25 +9,28 @@ type Data struct {
 }
 
 type HostData struct {
-	Name      string
-	Online    bool
-	Ping      float32
-	NCpu      int
-	Load      [3]float64
-	RamUsage  MemoryData
-	DiskUsage []DiskData
+	Name       string
+	Online     bool
+	Responsive bool
+	Ping       string
+	NCpu       int
+	Load       [3]float64
+	RamUsage   MemoryData
+	DiskUsage  []DiskData
 }
 
 type MemoryData struct {
-	TotalK      int64
-	UsedK       int64
+	TotalH      string
+	TotalK      uint64
+	UsedK       uint64
 	PercentUsed int
 }
 
 type DiskData struct {
 	Name        string
 	Mount       string
-	TotalK      int64
-	UsedK       int64
+	TotalH      string
+	TotalK      uint64
+	UsedK       uint64
 	PercentUsed int
 }

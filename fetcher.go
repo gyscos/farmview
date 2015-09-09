@@ -1,14 +1,17 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
 	"os/user"
 	"strconv"
 	"strings"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -72,31 +75,85 @@ func (f *Fetcher) Fetch_loop(dc chan<- Data) {
 	}
 }
 
+func getPing(host string) (float64, error) {
+	nPings := 3
+	bytes, err := exec.Command("ping", "-nc", strconv.Itoa(nPings), host).Output()
+	if err != nil {
+		return 0.0, err
+	}
+
+	sum := 0.0
+
+	lines := strings.Split(string(bytes), "\n")
+	if len(lines) < nPings+1 {
+		return 0.0, errors.New(fmt.Sprintf("Bad ping response:\n%v", lines))
+	}
+	for i := 0; i < nPings; i++ {
+		fields := strings.Fields(lines[1+i])
+		if len(fields) < 2 {
+			return 0.0, errors.New(fmt.Sprintf("Bad ping response: %v", fields))
+		}
+		n := len(fields) - 2
+		tokens := strings.Split(fields[n], "=")
+		ping, err := strconv.ParseFloat(tokens[1], 64)
+		if err != nil {
+			return 0.0, err
+		}
+		sum += ping
+	}
+
+	return sum / float64(nPings), nil
+}
+
+func fillPing(hostData *HostData, address string) {
+	ping, err := getPing(address)
+	if err != nil {
+		log.Println(err)
+	} else {
+		hostData.Online = true
+	}
+	hostData.Ping = fmt.Sprintf("%.1f", ping)
+}
+
+func fillDetails(hostData *HostData, host *HostConfig, f *Fetcher, i int) {
+	client, err := f.makeClient(i)
+	if err != nil {
+		log.Println(err)
+	}
+	defer client.Close()
+
+	session, err := client.NewSession()
+	if err != nil {
+		log.Println(err)
+	}
+	defer session.Close()
+
+	bytes, err := session.Output("nproc && uptime && cat /proc/meminfo | head -n 4 && df -P")
+	if err != nil {
+		log.Println(err)
+	}
+	parseResult(string(bytes), hostData, host.Disks)
+
+	hostData.Responsive = true
+}
+
 func (f *Fetcher) makeHostData(i int) (HostData, error) {
 	var hostData HostData
 
 	host := &f.config.Hosts[i]
 	hostData.Name = host.Name
 
-	client, err := f.makeClient(i)
-	if err != nil {
-		return hostData, err
-	}
-	defer client.Close()
+	jc := make(chan struct{})
+	go func() {
+		fillPing(&hostData, host.Address)
+		jc <- struct{}{}
+	}()
 
-	session, err := client.NewSession()
-	if err != nil {
-		return hostData, err
-	}
-	defer session.Close()
+	fillDetails(&hostData, host, f, i)
 
-	bytes, err := session.Output("nproc && uptime && cat /proc/meminfo | head -n 4 && df -P")
-	if err != nil {
-		return hostData, err
-	}
-	parseResult(string(bytes), &hostData, host.Disks)
-
-	hostData.Online = true
+	// Wait for ping job to complete
+	<-jc
+	log.Println("Host", host.Name, "ready")
 	return hostData, nil
 }
 
@@ -123,22 +180,22 @@ func parseResult(output string, data *HostData, diskNames []string) {
 		}
 	}
 
-	data.RamUsage.TotalK, err = strconv.ParseInt(strings.Fields(lines[lineId])[1], 10, 64)
+	data.RamUsage.TotalK, err = strconv.ParseUint(strings.Fields(lines[lineId])[1], 10, 64)
 	if err != nil {
 		log.Println(err)
 	}
 	if strings.Contains(lines[lineId+2], "Available") {
-		availableK, err := strconv.ParseInt(strings.Fields(lines[lineId+2])[1], 10, 64)
+		availableK, err := strconv.ParseUint(strings.Fields(lines[lineId+2])[1], 10, 64)
 		if err != nil {
 			log.Println(err)
 		}
 		data.RamUsage.UsedK = data.RamUsage.TotalK - availableK
 	} else {
-		freeK, err := strconv.ParseInt(strings.Fields(lines[lineId+1])[1], 10, 64)
+		freeK, err := strconv.ParseUint(strings.Fields(lines[lineId+1])[1], 10, 64)
 		if err != nil {
 			log.Println(err)
 		}
-		cacheK, err := strconv.ParseInt(strings.Fields(lines[lineId+3])[1], 10, 64)
+		cacheK, err := strconv.ParseUint(strings.Fields(lines[lineId+3])[1], 10, 64)
 		if err != nil {
 			log.Println(err)
 		}
@@ -147,6 +204,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 
 	}
 	data.RamUsage.PercentUsed = int(100 * data.RamUsage.UsedK / data.RamUsage.TotalK)
+	data.RamUsage.TotalH = humanize.Bytes(data.RamUsage.TotalK * 1024)
 	lineId += 4
 
 	// Fourth and Fivth lines are useless.
@@ -162,9 +220,10 @@ func parseResult(output string, data *HostData, diskNames []string) {
 			diskUsage := &data.DiskUsage[index]
 			diskUsage.Name = line[0]
 			diskUsage.Mount = line[5]
-			diskUsage.TotalK, err = strconv.ParseInt(line[1], 10, 64)
-			diskUsage.UsedK, err = strconv.ParseInt(line[2], 10, 64)
+			diskUsage.TotalK, err = strconv.ParseUint(line[1], 10, 64)
+			diskUsage.UsedK, err = strconv.ParseUint(line[2], 10, 64)
 			diskUsage.PercentUsed = int(100 * diskUsage.UsedK / diskUsage.TotalK)
+			diskUsage.TotalH = humanize.Bytes(diskUsage.TotalK * 1024)
 		}
 	}
 }
@@ -202,6 +261,8 @@ func (f *Fetcher) Fetch() Data {
 	for i := 0; i < count; i++ {
 		<-wc
 	}
+
+	// log.Println("Fetched", data)
 
 	return data
 }

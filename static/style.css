@@ -2,13 +2,10 @@
 	vertical-align: top;
 }
 
-span {
-	text-decoration: underline;
-	cursor: default;
+.titled {
 }
 
-span:hover {
-	background: rgba(0, 0, 0, .1);
+.titled:hover {
 }
 
 .machine {
@@ -19,6 +16,7 @@ span:hover {
 	border-radius: 5px;
 	overflow: hidden;
 	margin-bottom: 10px;
+	cursor: default;
 }
 
 .title {
@@ -51,28 +49,13 @@ span:hover {
 	padding-left: 10px;
 }
 
-.ping {
-	background-color: #DFD;
+.inside {
 	padding-left: 5px;
 	padding-right: 5px;
 }
 
-.uptime {
-	background-color: #AEA;
-	padding-left: 5px;
-	padding-right: 5px;
-}
-
-.memory {
-	background-color: #DFD;
-	padding-left: 5px;
-	padding-right: 5px;
-}
-
-.disks {
-	background-color: #AEA;
-	padding-left: 5px;
-	padding-right: 5px;
+.inside:hover {
+	background: rgba(0, 0, 0, .1);
 }
 
 .offline {
@@ -81,4 +64,11 @@ span:hover {
 	font-weight: bold;
 	font-size: 150%;
 	padding: 5px;
+}
+
+.disk-header {
+	padding-left: 5px;
+	padding-right: 5px;
+	border-top: 1px solid gray;
+	background-color: #EEE;
 }

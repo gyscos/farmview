@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Console</title>
@@ -9,29 +10,45 @@
 			{{range .Hosts}}
 			<div class="machine">
 				<div class="title">{{.Name}}</div>
-				<div class="ping">
-					<div class="label">Ping:</div>
-					<div class="value">355ms</div>
-				</div>
 				{{if .Online}}
-					<div class="uptime">
-						<div class="label"><span title="{{.NCpu}} CPUs">Load:</span></div>
-						<div class="uptime_value1">{{index .Load 1}}</div>
-						<div class="uptime_value2">{{index .Load 2}}</div>
-						<div class="uptime_value0">{{index .Load 0}}</div>
+					<div style="background-color: #AEA">
+						<div class="inside">
+							<div class="label">Ping:</div>
+							<div class="value">{{.Ping}}ms</div>
+						</div>
 					</div>
-					<div class="memory">
-						<div class="label">RAM:</div>
-						<div class="value">{{.RamUsage.PercentUsed}}%</div>
-					</div>
-					<div class="disks">
-						<div class="label">Disks:</div>
-						<div class="value">Usage</div>
-						{{range .DiskUsage}}
-							<div class="label"><span title="{{.Name}}">{{.Mount}}</span></div>
-							<div class="value">{{.PercentUsed}}%</div>
-						{{end}}
-					</div>
+					{{if .Responsive}}
+						<div style="background-color: #AEA">
+							<div class="inside" title="{{.NCpu}} CPUs">
+								<div class="label">Load:</div>
+								<div class="uptime_value1">{{index .Load 1}}</div>
+								<div class="uptime_value2">{{index .Load 2}}</div>
+								<div class="uptime_value0">{{index .Load 0}}</div>
+							</div>
+						</div>
+						<div class="memory" style="background-color: #AEA">
+							<div class="inside" title="Total: {{.RamUsage.TotalH}}">
+								<div class="label">RAM:</div>
+								<div class="value">{{.RamUsage.PercentUsed}}%</div>
+							</div>
+						</div>
+						<div class="disks">
+							<div class="disk-header">
+								<div class="label">Disks:</div>
+								<div class="value">Usage</div>
+							</div>
+							{{range .DiskUsage}}
+								<div style="background-color: #AEA">
+									<div class="inside" title="{{.Name}}: {{.TotalH}}">
+										<div class="label">{{.Mount}}</div>
+										<div class="value">{{.PercentUsed}}%</div>
+									</div>
+								</div>
+							{{end}}
+						</div>
+					{{else}}
+						<div class="offline">UNRESPONSIVE</div>
+					{{end}}
 				{{else}}
 					<div class="offline">OFFLINE</div>
 				{{end}}
