@@ -42,15 +42,15 @@
 	text-align: right;
 }
 
-.uptime_value0 {
+.load_value0 {
 	text-align: right;
 }
-.uptime_value1 {
+.load_value1 {
 	text-align: right;
 	float: right;
 	padding-left: 10px;
 }
-.uptime_value2 {
+.load_value2 {
 	text-align: right;
 	float: right;
 	padding-left: 10px;
