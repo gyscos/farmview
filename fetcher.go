@@ -115,7 +115,7 @@ func getPing(host string) (float64, error) {
 func fillPing(hostData *HostData, address string) {
 	ping, err := getPing(address)
 	if err != nil {
-		log.Println(err)
+		log.Println("Could not get ping:", err)
 	} else {
 		hostData.Online = true
 	}
@@ -125,20 +125,20 @@ func fillPing(hostData *HostData, address string) {
 func fillDetails(hostData *HostData, host *HostConfig, f *Fetcher, i int) {
 	client, err := f.makeClient(i)
 	if err != nil {
-		log.Println(err)
+		log.Println("SSH connection failure:", err)
 		return
 	}
 
 	session, err := client.NewSession()
 	if err != nil {
-		log.Println(err)
+		log.Println("SSH session failure:", err)
 		return
 	}
 	defer session.Close()
 
 	bytes, err := session.Output("nproc && uptime && cat /proc/meminfo | head -n 4 && df -P")
 	if err != nil {
-		log.Println(err)
+		log.Println("SSH command failed:", err)
 		return
 	}
 	parseResult(string(bytes), hostData, host.Disks)
@@ -173,7 +173,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 
 	data.NCpu, err = strconv.Atoi(lines[lineId])
 	if err != nil {
-		log.Println(err)
+		log.Println("Error parsing nproc:", err)
 	}
 	lineId++
 
@@ -185,28 +185,28 @@ func parseResult(output string, data *HostData, diskNames []string) {
 	for i := 0; i < 3; i++ {
 		data.Load[i], err = strconv.ParseFloat(strings.TrimRight(uptimeLine[n-i-1], ","), 64)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error parsing uptime:", err)
 		}
 	}
 
 	data.RamUsage.TotalK, err = strconv.ParseUint(strings.Fields(lines[lineId])[1], 10, 64)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error parsing total RAM:", err)
 	}
 	if strings.Contains(lines[lineId+2], "Available") {
 		availableK, err := strconv.ParseUint(strings.Fields(lines[lineId+2])[1], 10, 64)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error parsing available RAM:", err)
 		}
 		data.RamUsage.UsedK = data.RamUsage.TotalK - availableK
 	} else {
 		freeK, err := strconv.ParseUint(strings.Fields(lines[lineId+1])[1], 10, 64)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error parsing free RAM:", err)
 		}
 		cacheK, err := strconv.ParseUint(strings.Fields(lines[lineId+3])[1], 10, 64)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error parsing cached RAM:", err)
 		}
 		availableK := freeK + cacheK
 		data.RamUsage.UsedK = data.RamUsage.TotalK - availableK
@@ -259,7 +259,7 @@ func (f *Fetcher) Fetch() Data {
 			hostData, err := f.makeHostData(i)
 			if err != nil {
 				// ???
-				log.Println(err)
+				log.Println("Error making host data:", err)
 			}
 			data.Hosts[i] = hostData
 			wc <- struct{}{}
