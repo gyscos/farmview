@@ -126,18 +126,20 @@ func fillDetails(hostData *HostData, host *HostConfig, f *Fetcher, i int) {
 	client, err := f.makeClient(i)
 	if err != nil {
 		log.Println(err)
+		return
 	}
-	defer client.Close()
 
 	session, err := client.NewSession()
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	defer session.Close()
 
 	bytes, err := session.Output("nproc && uptime && cat /proc/meminfo | head -n 4 && df -P")
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	parseResult(string(bytes), hostData, host.Disks)
 
