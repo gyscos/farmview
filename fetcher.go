@@ -183,7 +183,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 	n := len(uptimeLine)
 
 	for i := 0; i < 3; i++ {
-		data.Load[i], err = strconv.ParseFloat(strings.TrimRight(uptimeLine[n-i-1], ","), 64)
+		data.Load[i], err = strconv.ParseFloat(strings.TrimRight(uptimeLine[n-3+i], ","), 64)
 		if err != nil {
 			log.Println("Error parsing uptime:", err)
 		}
