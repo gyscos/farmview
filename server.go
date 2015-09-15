@@ -29,7 +29,8 @@ func NewServer(dataDir string, dc <-chan Data) *Server {
 
 	// Now setup some handlers...
 	http.HandleFunc("/index", server.ServeIndex)
-	http.Handle("/", http.FileServer(http.Dir(dataDir+"/static")))
+	http.Handle("/static/", http.FileServer(http.Dir(dataDir)))
+	http.Handle("/", http.RedirectHandler("/index", 301))
 
 	return &server
 }

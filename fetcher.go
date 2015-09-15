@@ -213,7 +213,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 
 	}
 	data.RamUsage.PercentUsed = int(100 * data.RamUsage.UsedK / data.RamUsage.TotalK)
-	data.RamUsage.TotalH = humanize.Bytes(data.RamUsage.TotalK * 1024)
+	data.RamUsage.TotalH = humanize.IBytes(data.RamUsage.TotalK * 1024)
 	lineId += 4
 
 	// Fourth and Fivth lines are useless.
@@ -232,7 +232,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 			diskUsage.TotalK, err = strconv.ParseUint(line[1], 10, 64)
 			diskUsage.UsedK, err = strconv.ParseUint(line[2], 10, 64)
 			diskUsage.PercentUsed = int(100 * diskUsage.UsedK / diskUsage.TotalK)
-			diskUsage.TotalH = humanize.Bytes(diskUsage.TotalK * 1024)
+			diskUsage.TotalH = humanize.IBytes(diskUsage.TotalK * 1024)
 		}
 	}
 }
