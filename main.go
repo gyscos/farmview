@@ -16,9 +16,9 @@ func exists(path string) bool {
 
 func find_config() string {
 	paths := []string{
-		"~/.config/diffbot-console",
-		"~/.diffbot-console",
-		"/etc/diffbot-console",
+		"~/.config/farmview",
+		"~/.farmview",
+		"/etc/farmview",
 		"."}
 	for _, path := range paths {
 		if exists(path + "/config.toml") {
