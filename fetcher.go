@@ -67,8 +67,11 @@ func (f *Fetcher) makeClient(i int) (*ssh.Client, error) {
 	return client, nil
 }
 
-func (f *Fetcher) Fetch_loop(dc chan<- Data) {
+func (f *Fetcher) FetchLoop(dc chan<- Data) {
+	// First fetch
 	dc <- f.Fetch()
+
+	// Then, every few minutes
 	for _ = range time.Tick(1 * time.Minute) {
 		dc <- f.Fetch()
 	}

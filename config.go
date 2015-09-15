@@ -3,12 +3,14 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/BurntSushi/toml"
 )
 
 func ReadConfig(filename string) (Config, error) {
 	var config Config
+	config.filename = filename
 
 	log.Println("Reading configuration from", filename)
 	data, err := ioutil.ReadFile(filename)
@@ -26,6 +28,8 @@ type Config struct {
 	Http    HttpConfig
 	Hosts   []HostConfig
 	Default AuthConfig
+
+	filename string
 }
 
 type HttpConfig struct {
@@ -52,4 +56,14 @@ func (c *Config) GetAuth(i int) AuthConfig {
 	}
 
 	return c.Default
+}
+
+func (c *Config) WriteConfig() error {
+	f, err := os.Create(c.filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return toml.NewEncoder(f).Encode(c)
 }

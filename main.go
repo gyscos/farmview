@@ -67,9 +67,12 @@ func main() {
 	}
 
 	// Two services: http server and data fetcher
+
+	// Data channel: Fetcher -> Servewr
 	dc := make(chan Data, 1)
+
 	fetcher := NewFetcher(config)
-	go fetcher.Fetch_loop(dc)
+	go fetcher.FetchLoop(dc)
 
 	server := NewServer(dataDir, dc)
 	server.Serve(listen_port)
