@@ -8,17 +8,17 @@
 }
 
 .columns {
-	-moz-column-width: 230px;
+	-moz-column-width: 270px;
 	-moz-column-fill: balance;
-	-webkit-column-width: 230px;
+	-webkit-column-width: 270px;
 	-webkit-column-fill: balance;
-	column-width: 230px;
+	column-width: 270px;
 	column-fill: balance;
 }
 
 .machine {
 	vertical-align: top;
-	width: 220px;
+	width: 260px;
 	border: 1px solid black;
 	display: inline-block;
 	border-radius: 5px;

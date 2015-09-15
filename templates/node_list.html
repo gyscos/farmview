@@ -30,7 +30,11 @@
 							<div class="memory" style="background-color: #AEA">
 								<div class="inside" title="Total: {{.RamUsage.TotalH}}">
 									<div class="label">RAM:</div>
-									<div class="value">{{.RamUsage.PercentUsed}}%</div>
+									<div class="value">
+										{{.RamUsage.PercentUsed}}%
+										<meter min="0" max="100" optimum="0" low="50" high="80" value="{{.RamUsage.PercentUsed}}">
+										</meter>
+									</div>
 								</div>
 							</div>
 							<div class="disks">
@@ -42,7 +46,11 @@
 									<div style="background-color: #AEA">
 										<div class="inside" title="{{.Name}}: {{.TotalH}}">
 											<div class="label">{{.Mount}}</div>
-											<div class="value">{{.PercentUsed}}%</div>
+											<div class="value">
+												{{.PercentUsed}}%
+												<meter min="0" max="100" optimum="0" low="75" high="90" value="{{.PercentUsed}}">
+												</meter>
+											</div>
 										</div>
 									</div>
 								{{end}}
