@@ -18,46 +18,46 @@
 								<div class="value">{{.Ping}}ms</div>
 							</div>
 						</div>
-						{{if .Responsive}}
-							<div style="background-color: #AEA">
-								<div class="inside" title="{{.NCpu}} CPUs">
-									<div class="label">Load:</div>
-									<div class="load_value2">{{index .Load 2}}</div>
-									<div class="load_value1">{{index .Load 1}}</div>
-									<div class="load_value0">{{index .Load 0}}</div>
+					{{else}}
+						<div class="offline">NO PING</div>
+					{{end}}
+					{{if .Responsive}}
+						<div style="background-color: #AEA">
+							<div class="inside" title="{{.NCpu}} CPUs">
+								<div class="label">Load:</div>
+								<div class="load_value2">{{index .Load 2}}</div>
+								<div class="load_value1">{{index .Load 1}}</div>
+								<div class="load_value0">{{index .Load 0}}</div>
+							</div>
+						</div>
+						<div class="memory" style="background-color: #AEA">
+							<div class="inside" title="Total: {{.RamUsage.TotalH}}">
+								<div class="label">RAM:</div>
+								<div class="value">
+									{{.RamUsage.PercentUsed}}%
+									<meter min="0" max="100" optimum="0" low="50" high="80" value="{{.RamUsage.PercentUsed}}">
+									</meter>
 								</div>
 							</div>
-							<div class="memory" style="background-color: #AEA">
-								<div class="inside" title="Total: {{.RamUsage.TotalH}}">
-									<div class="label">RAM:</div>
-									<div class="value">
-										{{.RamUsage.PercentUsed}}%
-										<meter min="0" max="100" optimum="0" low="50" high="80" value="{{.RamUsage.PercentUsed}}">
-										</meter>
-									</div>
-								</div>
+						</div>
+						<div class="disks">
+							<div class="disk-header">
+								<div class="label">Disks:</div>
+								<div class="value">Usage</div>
 							</div>
-							<div class="disks">
-								<div class="disk-header">
-									<div class="label">Disks:</div>
-									<div class="value">Usage</div>
-								</div>
-								{{range .DiskUsage}}
-									<div style="background-color: #AEA">
-										<div class="inside" title="{{.Name}}: {{.TotalH}}">
-											<div class="label">{{.Mount}}</div>
-											<div class="value">
-												{{.PercentUsed}}%
-												<meter min="0" max="100" optimum="0" low="75" high="90" value="{{.PercentUsed}}">
-												</meter>
-											</div>
+							{{range .DiskUsage}}
+								<div style="background-color: #AEA">
+									<div class="inside" title="{{.Name}}: {{.TotalH}}">
+										<div class="label">{{.Mount}}</div>
+										<div class="value">
+											{{.PercentUsed}}%
+											<meter min="0" max="100" optimum="0" low="75" high="90" value="{{.PercentUsed}}">
+											</meter>
 										</div>
 									</div>
-								{{end}}
-							</div>
-						{{else}}
-							<div class="offline">UNRESPONSIVE</div>
-						{{end}}
+								</div>
+							{{end}}
+						</div>
 					{{else}}
 						<div class="offline">OFFLINE</div>
 					{{end}}
