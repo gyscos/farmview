@@ -6,7 +6,10 @@ import (
 	"os"
 )
 
+// Default configuration directory, can be set at compile time
 var conf_dir string
+
+// Default data directory, can be set at compile time (see build.sh)
 var data_dir string
 
 func exists(path string) bool {
@@ -19,6 +22,7 @@ func find_config() string {
 		"~/.config/farmview",
 		"~/.farmview",
 		"/etc/farmview",
+		conf_dir,
 		"."}
 	for _, path := range paths {
 		if exists(path + "/config.toml") {
