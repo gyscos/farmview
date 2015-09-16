@@ -131,6 +131,7 @@ func fillDetails(hostData *HostData, host *HostConfig, f *Fetcher, i int) {
 		log.Println("SSH connection failure:", err)
 		return
 	}
+	defer client.Close()
 
 	session, err := client.NewSession()
 	if err != nil {
