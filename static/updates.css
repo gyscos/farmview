@@ -85,7 +85,7 @@ body {
 
 .medium {
 /*background: #e4d836;*/
-/*background: #FFF9A7;*/
+background: #FFF9A7;
 }
 
 .high {
@@ -112,11 +112,11 @@ body {
 }
 
 .list-group-item.medium {
-    color:#e4d836;
+    /*color:#e4d836;*/
 /*  color: #FFF;
   color: #333;*/
     font-weight:700;
-    color:#f1c40f
+    /*color:#f1c40f*/
 }
 
 .list-group-item.high {
