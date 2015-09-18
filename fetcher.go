@@ -192,6 +192,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 			log.Println("Error parsing uptime:", err)
 		}
 	}
+	data.CpuUsage = int(100*data.Load[0]) / data.NCpu
 
 	data.RamUsage.TotalK, err = strconv.ParseUint(strings.Fields(lines[lineId])[1], 10, 64)
 	if err != nil {

@@ -15,6 +15,7 @@ type HostData struct {
 	Ping       string
 	NCpu       int
 	Load       [3]float64
+	CpuUsage   int
 	RamUsage   MemoryData
 	DiskUsage  []DiskData
 }
