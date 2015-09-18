@@ -9,12 +9,12 @@
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="con">
         <div class="row">
             {{range .Hosts}} <!-- <div class="machine col-xs-4"> -->
 
 
-            <div class="col-xs-3">
+            <div class="machine">
                 <div class="panel panel-default">
                     <div class="panel-heading title">
                         <h4>{{.Name}}</h4>
@@ -97,9 +97,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> <script crossorigin="anonymous" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <script>
-    	$(function () {
-    	  $('[data-toggle="tooltip"]').tooltip()
-    	})
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
 
     </script>
 </body>

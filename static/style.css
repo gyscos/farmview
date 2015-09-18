@@ -1,9 +1,12 @@
 
 
-/*
-.container {
+
+.con {
 	vertical-align: top;
-}*/
+	padding: 0 30px;
+}
+
+
 
 .update-time {
 	color: #a9aebd;
@@ -18,6 +21,9 @@
 	column-width: 270px;
 	column-fill: balance;
 }*/
+
+
+
 
 /*.machine {
 	vertical-align: top;
