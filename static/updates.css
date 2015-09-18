@@ -39,6 +39,7 @@ body {
   padding-left: 15px;
   padding: 0;
     -webkit-column-break-inside: avoid;
+   page-break-inside: avoid;
   break-inside: avoid;
 
 }
