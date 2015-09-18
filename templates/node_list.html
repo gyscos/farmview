@@ -52,7 +52,7 @@
 
 
                         <div class="list-group-item memory {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}">
-                            <span class="percent-used {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}" style="width: {{.RamUsage.PercentUsed}}%"></span> RAM <span class="value pull-right">{{.RamUsage.PercentUsed}}% <span class="ramusage sub value"><!--Total:-->
+                            <span class="percent-used {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}" style="width: {{.RamUsage.PercentUsed}}%"></span> <span class="ram">RAM</span> <span class="value pull-right">{{.RamUsage.PercentUsed}}% <span class="ramusage sub value"><!--Total:-->
                              [{{.RamUsage.TotalH}}]</span></span>
                         </div>
                         <!--listgroupitem-->
