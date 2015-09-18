@@ -1,83 +1,99 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Console</title>
-		<link rel="stylesheet" type="text/css" href="/static/style.css" />
-		<meta http-equiv="refresh" content="60">
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+<head>
+    <title>Console</title>
+    <link href="/static/style.css" rel="stylesheet" type="text/css">
+    <meta content="60" http-equiv="refresh">
+    <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" rel="stylesheet">
+    <link href="/static/updates.css" rel="stylesheet" type="text/css">
+</head>
 
-		<link rel="stylesheet" type="text/css" href="/static/updates.css" />
-
-	</head>
-	<body>
-		<div class="container-fluid">
-			<div class="row">
-
-				{{range .Hosts}}
-				<!-- <div class="machine col-xs-4"> -->
-				<div class="col-xs-4">
-					<div class="panel panel-default ">
-					 <div class="panel-heading title"><h4>{{.Name}}</h4></div>
-					<!-- <h4 class="title">{{.Name}}</h4> -->
-					<div class="list-group">
-						{{if .Online}}
-							<div class="list-group-item" >
-								Ping: <span class="value pull-right">{{.Ping}}ms</span>
-								</div>
-						{{else}}
-							<div class="list-group-item offline bg-danger">NO PING</div>
-						{{end}}
-						
-						{{if .Responsive}}
-							<div class="list-group-item clearfix">
-								Load: 
-								<div class="loads pull-right">
-									<ul class="list-inline">
-									  <li class="load value">{{index .Load 0}}</li>
-									  <li class="load value">{{index .Load 1}}</li>
-									  <li class="load value">{{index .Load 2}}</li>
-									</ul>
-									<span class="sub value pull-right">{{.NCpu}} CPUs</span>
-								</div>
-							</div>
-
-							<div class="list-group-item memory {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}">
-								<span class="percent-used {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}" style="width: {{.RamUsage.PercentUsed}}%"></span>
-								RAM <span class="value pull-right">{{.RamUsage.PercentUsed}}% <span class="ramusage sub value"><!--Total:--> [{{.RamUsage.TotalH}}]</span></span>
-							</div> <!--listgroupitem-->
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            {{range .Hosts}} <!-- <div class="machine col-xs-4"> -->
 
 
-
-							<!-- <div class="disks"> -->
-								<div class="list-group-heading">Disks: Usage</div>
-								{{range .DiskUsage}}
-									<div class="list-group-item {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}">
-										<span class="percent-used {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}" style="width: {{.PercentUsed}}%"></span>
-										{{.Mount}}
-										<div class="value pull-right">
-											{{.PercentUsed}}% <span class="diskusage sub value">{{.Name}}: {{.TotalH}}</span>
-										</div>
-									</div>
-								{{end}}
-					<!-- 		</div> --> <!--disks-->
-						{{else}} <!--not responsive-->
-							<div class="list-group-item offline list-group-item-danger list-group-item-danger">OFFLINE</div>
-						{{end}} <!--responsive-->
+            <div class="col-xs-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading title">
+                        <h4>{{.Name}}</h4>
+                    </div>
+                    <!-- <h4 class="title">{{.Name}}</h4> -->
 
 
+                    <div class="list-group">
+                        {{if .Online}}
 
-					</div> <!--list-group-->
-				</div> <!--panel-->
-	
-					
-				</div>
-				{{end}} <!--hosts-->
-			</div> <!--row-->
-					<div class="update-time">Last updated: {{.UpdateTime}}</div>
+                        <div class="list-group-item">
+                            Ping: <span class="value pull-right">{{.Ping}}ms</span>
+                        </div>
+                        {{else}}
 
-		</div> <!--container-->
-	</body>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+                        <div class="list-group-item offline bg-danger">
+                            NO PING
+                        </div>
+                        {{end}} {{if .Responsive}}
 
+                        <div class="list-group-item clearfix">
+                            Load:
+
+                            <div class="loads pull-right">
+                                <ul class="list-inline">
+                                    <li class="load value">{{index .Load 0}}</li>
+                                    <li class="load value">{{index .Load 1}}</li>
+                                    <li class="load value">{{index .Load 2}}</li>
+                                    <li class="sub value">[{{.NCpu}} CPUs]</li>
+                                </ul>
+                                <!--                   <span class="sub value pull-right">{{.NCpu}} CPUs</span>
+ -->
+                            </div>
+                        </div>
+
+
+                        <div class="list-group-item memory {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}">
+                            <span class="percent-used {{if ge .RamUsage.PercentUsed 80}}high{{else if ge .RamUsage.PercentUsed 50 }}medium{{else}}low{{end}}" style="width: {{.RamUsage.PercentUsed}}%"></span> RAM <span class="value pull-right">{{.RamUsage.PercentUsed}}% <span class="ramusage sub value"><!--Total:-->
+                             [{{.RamUsage.TotalH}}]</span></span>
+                        </div>
+                        <!--listgroupitem-->
+                        <!-- <div class="disks"> -->
+
+
+                        <div class="list-group-heading">
+                            Disks: Usage
+                        </div>
+                        {{range .DiskUsage}}
+
+                        <div class="list-group-item {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}">
+                            <span class="percent-used {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}" style="width: {{.PercentUsed}}%"></span> {{.Mount}}
+
+                            <div class="value pull-right">
+                                {{.PercentUsed}}% <span class="diskusage sub value">{{.Name}}: {{.TotalH}}</span>
+                            </div>
+                        </div>
+                        {{end}} <!--    </div> --> <!--disks-->
+                         {{else}} <!--not responsive-->
+
+
+                        <div class="list-group-item offline list-group-item-danger list-group-item-danger">
+                            OFFLINE
+                        </div>
+                        {{end}} <!--responsive-->
+                    </div>
+                    <!--list-group-->
+                </div>
+                <!--panel-->
+            </div>
+            {{end}} <!--hosts-->
+        </div>
+        <!--row-->
+
+
+        <div class="update-time">
+            Last updated: {{.UpdateTime}}
+        </div>
+    </div>
+    <!--container-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> <script crossorigin="anonymous" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
 </html>
