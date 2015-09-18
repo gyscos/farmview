@@ -1,0 +1,61 @@
+.light {
+      color: #555555;
+    background-color: #f5f8fa;
+
+}
+
+.title, .title.panel-heading {
+  color: #555;
+  border-color: #dddddd;
+  background: #fff;
+}
+
+.panel {
+    border-color: #dddddd;
+    /*background-color: #fff;*/
+    z-index: -200;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    border-color: #d3e0e9;
+}
+
+.memory .percent-used, .memory .percent-used.medium, .memory.medium .ram {
+  background: #BAFFFC;
+}
+.memory .percent-used {
+  border-right-color: #00ede3;
+}
+
+.percent-used {
+z-index: -1;
+  background: #ECEEF2;
+  border-right: 1px solid #ced3dd;
+}
+
+.medium {
+  background: #FFF9A7;
+}
+.list-group-heading {
+  background: #F9F9F9;
+  color: #555;
+  border-top: 1px solid #ced3dd;
+  border-bottom: 1px solid #ced3dd;
+}
+.list-group-item {
+  color: #384E54;
+  border-color: #ced3dd;
+  background: white;
+  z-index: -1;
+
+}
+.value {
+   color: #6C797D;
+}
+.list-group-item.medium .value {
+ color: #6C797D;
+ text-shadow: none;
+ }
+
+ .list-group-item.high .value {
+ color: #6C797D;
+ text-shadow: none;
+ }
