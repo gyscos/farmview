@@ -43,7 +43,7 @@
                                     <li class="load value">{{index .Load 0}}</li>
                                     <li class="load value">{{index .Load 1}}</li>
                                     <li class="load value">{{index .Load 2}}</li>
-                                    <li class="sub value">[{{.NCpu}} CPUs]</li>
+                                    <li class="sub value cpus">[{{.NCpu}} CPUs]</li>
                                 </ul>
                                 <!--                   <span class="sub value pull-right">{{.NCpu}} CPUs</span>
  -->
@@ -64,11 +64,11 @@
                         </div>
                         {{range .DiskUsage}}
 
-                        <div class="list-group-item {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}">
+                        <div class="list-group-item {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}" data-toggle="tooltip" data-placement="top" title="{{.Name}}:  {{.TotalH}}">
                             <span class="percent-used {{if ge .PercentUsed 90}}high{{else if ge .PercentUsed 70 }}medium{{else}}low{{end}}" style="width: {{.PercentUsed}}%"></span> {{.Mount}}
 
                             <div class="value pull-right">
-                                {{.PercentUsed}}% <span class="diskusage sub value">{{.Name}}: {{.TotalH}}</span>
+                                {{.PercentUsed}}% <span class="diskusage sub value">{{.TotalH}}</span>
                             </div>
                         </div>
                         {{end}} <!--    </div> --> <!--disks-->
@@ -95,5 +95,12 @@
     </div>
     <!--container-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> <script crossorigin="anonymous" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
+    	$(function () {
+    	  $('[data-toggle="tooltip"]').tooltip()
+    	})
+
+    </script>
 </body>
 </html>
