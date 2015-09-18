@@ -181,7 +181,7 @@ margin-bottom: -1px;
 
 .load.value {
 /*float: right;*/
-    margin-left:5px
+    /*margin-left:5px*/
 }
 
 .panel {
@@ -213,6 +213,10 @@ margin-bottom: -1px;
 .sub.value.cpus {
   width: auto;
 }
+
+
+
+
 
 /*.diskusage {
   width: 60px;
