@@ -101,6 +101,10 @@ func getPing(host string) (float64, error) {
 		}
 		n := len(fields) - 2
 		tokens := strings.Split(fields[n], "=")
+		if len(tokens) < 2 {
+			nErrors += 1
+			continue
+		}
 		ping, err := strconv.ParseFloat(tokens[1], 64)
 		if err != nil {
 			nErrors += 1
