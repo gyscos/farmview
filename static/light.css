@@ -8,6 +8,7 @@
   color: #555;
   border-color: #dddddd;
   background: #fff;
+  margin-bottom: 0px;
 }
 
 .panel {
@@ -33,6 +34,7 @@ z-index: -1;
 
 .medium {
   background: #FFF9A7;
+  background: #fcf8e3;
 }
 .list-group-heading {
   background: #F9F9F9;
@@ -44,7 +46,8 @@ z-index: -1;
   color: #384E54;
   border-color: #ced3dd;
   background: white;
-  z-index: -1;
+  z-index: 1;
+  cursor: pointer;
 
 }
 .value {
@@ -59,3 +62,87 @@ z-index: -1;
  color: #6C797D;
  text-shadow: none;
  }
+
+
+/*.con, .machine {
+  padding: 0;
+}
+
+.machine {
+  width: 100%;
+}
+
+.row {
+    -webkit-column-count: 5;
+  -webkit-column-gap: 0px;
+  -webkit-column-fill: auto;
+  -moz-column-count: 5;
+  -moz-column-gap: 0px;
+  -moz-column-fill: auto;
+  column-count: 5;
+  column-gap: 0px;
+  column-fill: auto;
+
+
+}*/
+
+/*.list-group-item {
+  background: #95a5a6;
+}
+
+
+.percent-used {
+  background: #2c3e50;
+}
+
+*/
+
+
+/*.list-group-item.low {
+  color: #fff;
+
+
+}*/
+.percent-used {
+  background: #CFD4DC;
+  /*background: #2c3e50;*/
+}
+
+/*.list-group-item.low {
+    text-shadow: 0px 2px 3px #000000;
+}
+
+
+
+.percent-used.medium {
+  background: #CFD4DC;
+  background: #fec324;
+}
+
+.value, .sub.value {
+  text-shadow: none;
+}
+
+*/
+
+
+
+
+
+.percent-used {
+  border-color: #949fb1;
+}
+.list-group-item {
+  border-color: #a6afbe;
+}
+
+.medium {
+  background: #FFF9A7;
+}
+.high {
+  background: #fe464d;
+}
+.list-group-item {
+  color: #262626;
+  background: #FFF;
+}

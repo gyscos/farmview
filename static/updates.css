@@ -182,6 +182,8 @@ margin-bottom: -1px;
 .load.value {
 /*float: right;*/
     /*margin-left:5px*/
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .panel {

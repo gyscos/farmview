@@ -1,0 +1,34 @@
+body.alt {
+  background: #f9f9f9;
+}
+.alt .machine {
+  width: 190px;
+}
+
+.alt .row {
+    -moz-column-width: 190px;
+    -moz-column-fill: balance;
+    -webkit-column-width: 190px;
+    -webkit-column-fill: balance;
+    column-width: 190px;
+    column-fill: balance;
+}
+
+.alt .list-group-item {
+  background: transparent;
+  color: white;
+  font-weight: bold;
+}
+
+.alt .list-group-item.low {
+  background: #bdc3c7;
+
+}
+
+.alt .percent-used {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.alt .value, .alt .sub.value {
+  color: #fff;
+}
