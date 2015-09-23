@@ -122,7 +122,7 @@ func getPing(host string) (float64, error) {
 func fillPing(hostData *HostData, address string) {
 	ping, err := getPing(address)
 	if err != nil {
-		log.Println("Could not get ping:", err)
+		// log.Println("Could not get ping:", err)
 	} else {
 		hostData.Online = true
 	}
@@ -174,6 +174,11 @@ func (f *Fetcher) makeHostData(i int) (HostData, error) {
 	return hostData, nil
 }
 
+func getPercentUsed(used uint64, total uint64) int {
+
+	return int((100*used + total/2) / total)
+}
+
 func parseResult(output string, data *HostData, diskNames []string) {
 	var err error
 	lines := strings.Split(output, "\n")
@@ -221,7 +226,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 		data.RamUsage.UsedK = data.RamUsage.TotalK - availableK
 
 	}
-	data.RamUsage.PercentUsed = int(100 * data.RamUsage.UsedK / data.RamUsage.TotalK)
+	data.RamUsage.PercentUsed = getPercentUsed(data.RamUsage.UsedK, data.RamUsage.TotalK)
 	data.RamUsage.TotalH = humanize.IBytes(data.RamUsage.TotalK * 1024)
 	lineId += 4
 
@@ -235,12 +240,21 @@ func parseResult(output string, data *HostData, diskNames []string) {
 		diskName := line[0]
 		index := indexOf(diskName, diskNames)
 		if index != -1 {
+			totalK, err := strconv.ParseUint(line[1], 10, 64)
+			if err != nil {
+				continue
+			}
+			availK, err := strconv.ParseUint(line[3], 10, 64)
+			if err != nil {
+				continue
+			}
+
 			diskUsage := &data.DiskUsage[index]
 			diskUsage.Name = line[0]
 			diskUsage.Mount = line[5]
-			diskUsage.TotalK, err = strconv.ParseUint(line[1], 10, 64)
-			diskUsage.UsedK, err = strconv.ParseUint(line[2], 10, 64)
-			diskUsage.PercentUsed = int(100 * diskUsage.UsedK / diskUsage.TotalK)
+			diskUsage.TotalK = totalK
+			diskUsage.UsedK = totalK - availK
+			diskUsage.PercentUsed = getPercentUsed(diskUsage.UsedK, diskUsage.TotalK)
 			diskUsage.TotalH = humanize.IBytes(diskUsage.TotalK * 1024)
 		}
 	}
