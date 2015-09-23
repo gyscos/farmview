@@ -13,9 +13,6 @@ body {
 
 .row {
   margin: 0;
-}
-
-.row {
   -moz-column-width: 260px;
   -moz-column-fill: balance;
   -webkit-column-width: 260px;
@@ -31,17 +28,15 @@ body {
 .machine {
   width: 260px;
   vertical-align: top;
-  float: left;
 
 /*  position: relative;
   min-height: 1px;*/
   padding-right: 15px;
   padding-left: 15px;
   padding: 0;
-    -webkit-column-break-inside: avoid;
-   page-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
   break-inside: avoid;
-
 }
 
 .title,.title.panel-heading {

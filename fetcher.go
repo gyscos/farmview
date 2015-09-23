@@ -71,6 +71,8 @@ func (f *Fetcher) FetchLoop(dc chan<- Data) {
 	// First fetch
 	dc <- f.Fetch()
 
+	log.Println("Ready!")
+
 	// Then, every few minutes
 	for _ = range time.Tick(1 * time.Minute) {
 		dc <- f.Fetch()
