@@ -8,11 +8,11 @@
 	color: #555;
 	border-color: #dddddd;
 	background: #fff;
+	margin-bottom: 0px;
 }
 
 .panel {
 	border-color: #dddddd;
-	/*background-color: #fff;*/
 	z-index: -200;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 	border-color: #d3e0e9;
@@ -41,11 +41,8 @@
 }
 
 .medium {
-	background: #ecee6e;
-}
-
-.high {
-	background: #ee6e6e;
+	background: #FFF9A7;
+	background: #fcf8e3;
 }
 
 .list-group-heading {
@@ -59,7 +56,8 @@
 	color: #384E54;
 	border-color: #ced3dd;
 	background: white;
-	z-index: -1;
+	z-index: 1;
+	cursor: pointer;
 
 }
 .value {
@@ -74,4 +72,27 @@
 .list-group-item.high .value {
 	color: #6C797D;
 	text-shadow: none;
+}
+
+.percent-used {
+	background: #CFD4DC;
+}
+
+
+.percent-used {
+	border-color: #949fb1;
+}
+.list-group-item {
+	border-color: #a6afbe;
+}
+
+.medium {
+	background: #FFF9A7;
+}
+.high {
+	background: #fe464d;
+}
+.list-group-item {
+	color: #262626;
+	background: #FFF;
 }
