@@ -28,7 +28,10 @@ func NewFetcher(config Config) Fetcher {
 
 func (f *Fetcher) getSshAuthMethod(auth AuthConfig) (ssh.AuthMethod, error) {
 	if auth.Keypair != "" {
-		usr, _ := user.Current()
+		usr, err := user.Current()
+		if err != nil {
+			return nil, err
+		}
 		homeDir := usr.HomeDir
 		keyPath := strings.Replace(auth.Keypair, "~", homeDir, -1)
 		bytes, err := ioutil.ReadFile(keyPath)
