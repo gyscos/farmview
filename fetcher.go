@@ -240,7 +240,11 @@ func parseResult(output string, data *HostData, diskNames []string) {
 			continue
 		}
 		diskName := line[0]
+		mountName := line[5]
 		index := indexOf(diskName, diskNames)
+		if index == -1 {
+			index = indexOf(mountName, diskNames)
+		}
 		if index != -1 {
 			totalK, err := strconv.ParseUint(line[1], 10, 64)
 			if err != nil {
@@ -252,8 +256,8 @@ func parseResult(output string, data *HostData, diskNames []string) {
 			}
 
 			diskUsage := &data.DiskUsage[index]
-			diskUsage.Name = line[0]
-			diskUsage.Mount = line[5]
+			diskUsage.Name = diskName
+			diskUsage.Mount = mountName
 			diskUsage.TotalK = totalK
 			diskUsage.UsedK = totalK - availK
 			diskUsage.PercentUsed = getPercentUsed(diskUsage.UsedK, diskUsage.TotalK)
