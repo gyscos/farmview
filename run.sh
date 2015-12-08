@@ -1,11 +1,20 @@
 #!/bin/bash
 
 CONFIG=$(readlink -f "$1")
-CONFIG_ARG="$CONFIG:/config.toml"
-PORT="$2"
+echo $CONFIG
+
+shift
+
+PORT="$1"
 if [ -z "$PORT" ]
 then
 	PORT=8080
 fi
+echo $PORT
 
-docker run --rm -p $PORT -v "$CONFIG_ARG" --name farmview farmview
+shift
+
+ARGS="$@"
+echo $ARGS
+
+docker run --rm -p $PORT -v "$CONFIG:/config.toml" --name farmview $ARGS farmview
