@@ -236,7 +236,7 @@ func parseResult(output string, data *HostData, diskNames []string) {
 	data.DiskUsage = make([]DiskData, len(diskNames))
 	for i := 5; i < len(lines); i++ {
 		line := strings.Fields(lines[i])
-		if len(line) == 0 {
+		if len(line) < 6 {
 			continue
 		}
 		diskName := line[0]
