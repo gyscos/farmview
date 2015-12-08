@@ -29,10 +29,10 @@ func NewFetcher(config Config) Fetcher {
 func (f *Fetcher) getSshAuthMethod(auth AuthConfig) (ssh.AuthMethod, error) {
 	if auth.Keypair != "" {
 		usr, err := user.Current()
-		if err != nil {
-			return nil, err
+		homeDir := "/root"
+		if err == nil {
+			homeDir = usr.HomeDir
 		}
-		homeDir := usr.HomeDir
 		keyPath := strings.Replace(auth.Keypair, "~", homeDir, -1)
 		bytes, err := ioutil.ReadFile(keyPath)
 		if err != nil {
