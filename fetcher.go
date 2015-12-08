@@ -268,6 +268,11 @@ func parseResult(output string, data *HostData, diskNames []string) {
 
 func indexOf(value string, list []string) int {
 	for i, entry := range list {
+		if value == entry {
+			return i
+		}
+	}
+	for i, entry := range list {
 		if strings.Contains(value, entry) {
 			return i
 		}
