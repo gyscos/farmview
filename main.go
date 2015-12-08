@@ -40,7 +40,7 @@ func main() {
 	var listen_port int
 	flag.StringVar(&dataDir, "d", "", "data directory override")
 	flag.StringVar(&config_file, "c", "", "config file override")
-	flag.IntVar(&listen_port, "p", 0, "port to listen to")
+	flag.IntVar(&listen_port, "p", 8080, "port to listen to")
 
 	flag.Parse()
 
