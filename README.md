@@ -28,3 +28,13 @@ To install (you may want to set the DESTDIR var first):
 ```
 # ./install.sh
 ```
+
+Or you could use the included Dockerfile:
+
+```
+# Build a docker image
+./dockerify.sh
+
+# Run the docker image
+./run.sh path_to/config.toml 8123 # other options are directly passed to `docker run`
+```
