@@ -10,6 +10,7 @@ def run(args, **kwargs):
 
 def main():
     print(json.dumps({
+        'hostname': get_hostname(),
         'nproc': get_nproc(),
         'uptime': get_uptime(),
         'memory': get_memory_info(),
@@ -18,11 +19,15 @@ def main():
     }))
 
 
+def get_hostname():
+    return run('hostname').strip()
+
+
 def get_nproc():
     try:
         return int(run('nproc'))
     except:
-        return -1
+        return None
 
 
 def get_uptime():
@@ -31,7 +36,7 @@ def get_uptime():
         tokens = [float(token.strip()) for token in uptime.split(',')]
         return tokens
     except:
-        return []
+        return None
 
 
 def get_memory_info():
@@ -51,7 +56,7 @@ def get_memory_info():
 
         return {'used': used, 'total': total}
     except:
-        return {}
+        return None
 
 
 def get_disks():
@@ -78,7 +83,7 @@ def get_traffic():
         return {'rx': rx,
                 'tx': tx}
     except:
-        return {}
+        return None
 
 
 if __name__ == '__main__':

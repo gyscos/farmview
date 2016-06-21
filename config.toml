@@ -1,0 +1,12 @@
+[http]
+	port = 8001
+
+[default]
+	login = "ubuntu"
+	keypair = "USW2_KeyPair.pem"
+
+
+[[hosts]]
+	name = "Diffy"
+	address = "diffy.diffbot.com"
+	disks = ["/dev/sda"]

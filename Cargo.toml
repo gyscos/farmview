@@ -4,15 +4,14 @@ name = "farmview"
 version = "0.1.0"
 
 [dependencies]
-clap = "2.2.1"
-handlebars-iron = "0.13.1"
-iron = "0.3.0"
-serde = "0.7.0"
-serde_json = "0.7.0"
-serde_macros = "0.7.0"
-urlencoded = "0.2.1"
+clap = "2.6.0"
+serde = "0.7.10"
+serde_json = "0.7.1"
+serde_macros = "0.7.10"
+ssh2 = "0.2.12"
 xdg = "2.0.0"
 
 [dependencies.toml]
+default-features = false
 features = ["serde"]
-version = "0.1.28"
+version = "0.1"

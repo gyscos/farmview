@@ -32,17 +32,11 @@ fn main() {
         Some(path) => std::path::PathBuf::from(path),
         None => default_config_path().unwrap(),
     };
-    println!("Using config file {:?}", config_path);
 
-    let config = config::read_config(&config_path)
-                     .unwrap();
-                     // .unwrap_or(config::Config::default());
+    let config = config::read_config(&config_path).unwrap_or(config::Config::default());
+    let port = config.http.map_or(8080, |http| http.port);
 
-    let port = config.http.as_ref().map_or(8080, |http| http.port);
-
-    println!("Running webserver on port {:?}", port);
-
-    println!("{:?}", fetch::fetch_data(&config));
+    println!("Hello, world! {:?}", port);
 
 }
 
