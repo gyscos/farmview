@@ -37,8 +37,9 @@ pub fn read_config<P: AsRef<Path>>(filename: P) -> io::Result<Config> {
     let mut file = try!(fs::File::open(filename));
     let mut buffer = String::new();
     try!(file.read_to_string(&mut buffer));
-    toml::decode_str(&buffer)
-            .ok_or(io::Error::new(io::ErrorKind::Other, format!("Could not load toml.")))
+    toml::decode_str(&buffer).ok_or(io::Error::new(io::ErrorKind::Other,
+                                                   format!("Could not load \
+                                                            toml.")))
 }
 
 pub fn write_config<P: AsRef<Path>>(filename: P,

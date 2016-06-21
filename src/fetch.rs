@@ -37,10 +37,15 @@ pub struct NetworkData {
 }
 
 pub fn fetch_data(config: &config::Config) -> Vec<Data> {
-    config.hosts.iter().map(|host| fetch_host_data(host, config.default.as_ref()).unwrap()).collect()
+    config.hosts
+          .iter()
+          .map(|host| fetch_host_data(host, config.default.as_ref()).unwrap())
+          .collect()
 }
 
-fn fetch_host_data(host: &config::HostConfig, default: Option<&config::AuthConfig>) -> Result<Data, ssh2::Error> {
+fn fetch_host_data(host: &config::HostConfig,
+                   default: Option<&config::AuthConfig>)
+                   -> Result<Data, ssh2::Error> {
     let tcp = TcpStream::connect((&*host.address, 22)).unwrap();
 
     let mut sess = ssh2::Session::new().unwrap();
@@ -53,7 +58,10 @@ fn fetch_host_data(host: &config::HostConfig, default: Option<&config::AuthConfi
             try!(sess.userauth_password(&auth.login, password));
         } else if let Some(ref keypair) = auth.keypair {
             // Or maybe with an identity file?
-            try!(sess.userauth_pubkey_file(&auth.login, None, path::Path::new(keypair), None));
+            try!(sess.userauth_pubkey_file(&auth.login,
+                                           None,
+                                           path::Path::new(keypair),
+                                           None));
         }
     }
 
