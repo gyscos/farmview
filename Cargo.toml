@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 clap = "2.6.0"
+rayon = "0.4.0"
 serde = "0.7.10"
 serde_json = "0.7.1"
 serde_macros = "0.7.10"

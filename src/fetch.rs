@@ -3,6 +3,7 @@ use config;
 use std::path;
 use std::net::TcpStream;
 
+use rayon::prelude::*;
 use serde_json;
 use ssh2;
 
@@ -38,7 +39,7 @@ pub struct NetworkData {
 
 pub fn fetch_data(config: &config::Config) -> Vec<Data> {
     config.hosts
-          .iter()
+          .par_iter()
           .map(|host| fetch_host_data(host, config.default.as_ref()).unwrap())
           .collect()
 }

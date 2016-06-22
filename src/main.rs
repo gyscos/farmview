@@ -6,6 +6,7 @@ extern crate serde_json;
 extern crate toml;
 extern crate xdg;
 extern crate ssh2;
+extern crate rayon;
 
 mod config;
 mod fetch;
