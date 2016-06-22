@@ -35,7 +35,13 @@ fn main() {
     println!("Using config file {:?}", config_path);
 
     // TODO: at least print an error message if config cannot be loaded
-    let config = config::read_config(&config_path).unwrap();
+    let config = match config::read_config(&config_path) {
+        Ok(config) => config,
+        Err(e) => {
+            println!("Error loading config: {:?}", e);
+            config::Config::default()
+        }
+    };
 
     let port = config.http.as_ref().map_or(8080, |http| http.port);
 
