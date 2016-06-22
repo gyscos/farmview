@@ -37,20 +37,17 @@ pub struct NetworkData {
     tx: f32,
 }
 
-pub fn fetch_data(config: &config::Config) -> Vec<Data> {
+pub fn fetch_data(config: &config::Config) -> Vec<Option<Data>> {
     config.hosts
           .par_iter()
-          .map(|host| fetch_host_data(host, config.default.as_ref()).unwrap())
+          .map(|host| fetch_host_data(host, config.default.as_ref()).ok())
           .collect()
 }
 
-fn fetch_host_data(host: &config::HostConfig,
-                   default: Option<&config::AuthConfig>)
-                   -> Result<Data, ssh2::Error> {
-    let tcp = TcpStream::connect((&*host.address, 22)).unwrap();
-
-    let mut sess = ssh2::Session::new().unwrap();
-    try!(sess.handshake(&tcp));
+fn authenticate(sess: &mut ssh2::Session,
+                host: &config::HostConfig,
+                default: Option<&config::AuthConfig>)
+                -> Result<(), ssh2::Error> {
 
     // Do we have an authentication? Or do we have a default one?
     if let Some(auth) = host.auth.as_ref().or(default) {
@@ -65,8 +62,50 @@ fn fetch_host_data(host: &config::HostConfig,
                                            None));
         }
     }
+    Ok(())
+}
+
+fn connect(host: &config::HostConfig,
+           default: Option<&config::AuthConfig>)
+           -> Result<(TcpStream, ssh2::Session), ssh2::Error> {
+
+    let tcp = TcpStream::connect((&*host.address, 22)).unwrap();
+
+    let mut sess = ssh2::Session::new().unwrap();
+    try!(sess.handshake(&tcp));
+    try!(authenticate(&mut sess, host, default));
+
+    Ok((tcp, sess))
+}
+
+
+
+fn fetch_host_data(host: &config::HostConfig,
+                   default: Option<&config::AuthConfig>)
+                   -> Result<Data, ssh2::Error> {
+
+    let (tcp, sess) = try!(connect(host, default));
 
     let mut channel = try!(sess.channel_session());
     try!(channel.exec("./fetch.py"));
     Ok(serde_json::from_reader(channel).unwrap())
+}
+
+fn prepare_host(host: &config::HostConfig,
+                default: Option<&config::AuthConfig>)
+                -> Result<(), Box<Error>> {
+
+    // Directly include the script in the executable
+    let script_data = include_str!("assets/fetch.py");
+
+    let (tcp, sess) = try!(connect(host, default));
+    let mut remote_file = try!(sess.scp_send(Path::new("fetch.py"), 0o755, script_data.len(), None));
+    try!(remote_file.write_all(script_data.as_bytes()));
+    Ok(())
+}
+
+pub fn prepare_hosts(config: &config::Config) -> Vec<Option<Box<Error>>> {
+    config.hosts
+        .par_iter()
+        .map(|host| prepare_host(host, config.default.as_ref()).err());
 }
