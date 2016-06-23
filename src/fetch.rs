@@ -1,6 +1,8 @@
 use config;
 
+use std::error;
 use std::path;
+use std::io::Write;
 use std::net::TcpStream;
 
 use rayon::prelude::*;
@@ -38,10 +40,12 @@ pub struct NetworkData {
 }
 
 pub fn fetch_data(config: &config::Config) -> Vec<Option<Data>> {
+    let mut result = Vec::new();
     config.hosts
           .par_iter()
           .map(|host| fetch_host_data(host, config.default.as_ref()).ok())
-          .collect()
+          .collect_into(&mut result);
+    result
 }
 
 fn authenticate(sess: &mut ssh2::Session,
@@ -93,19 +97,22 @@ fn fetch_host_data(host: &config::HostConfig,
 
 fn prepare_host(host: &config::HostConfig,
                 default: Option<&config::AuthConfig>)
-                -> Result<(), Box<Error>> {
+                -> Result<(), Box<error::Error + Send + Sync>> {
 
     // Directly include the script in the executable
-    let script_data = include_str!("assets/fetch.py");
+    let script_data = include_str!("../data/fetch.py");
 
     let (tcp, sess) = try!(connect(host, default));
-    let mut remote_file = try!(sess.scp_send(Path::new("fetch.py"), 0o755, script_data.len(), None));
+    let mut remote_file = try!(sess.scp_send(path::Path::new("fetch.py"), 0o755, script_data.len() as u64, None));
     try!(remote_file.write_all(script_data.as_bytes()));
     Ok(())
 }
 
-pub fn prepare_hosts(config: &config::Config) -> Vec<Option<Box<Error>>> {
+pub fn prepare_hosts(config: &config::Config) -> Vec<Option<Box<error::Error + Send + Sync>>> {
+    let mut result = Vec::new();
     config.hosts
         .par_iter()
-        .map(|host| prepare_host(host, config.default.as_ref()).err());
+        .map(|host| prepare_host(host, config.default.as_ref()).err())
+        .collect_into(&mut result);
+    result
 }
