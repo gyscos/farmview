@@ -11,6 +11,12 @@ use ssh2;
 
 #[derive(Default, Debug, Deserialize)]
 pub struct Data {
+    hosts: Vec<Option<HostData>>,
+}
+
+/// This is what's produced by `fetch_data` regularly.
+#[derive(Default, Debug, Deserialize)]
+pub struct HostData {
     hostname: Option<String>,
     nproc: Option<u8>,
     // Directly from the `uptime` command
@@ -47,13 +53,13 @@ pub struct NetworkData {
     tx: f32,
 }
 
-pub fn fetch_data(config: &config::Config) -> Vec<Option<Data>> {
+pub fn fetch_data(config: &config::Config) -> Data {
     let mut result = Vec::new();
     config.hosts
           .par_iter()
           .map(|host| fetch_host_data(host, config.default.as_ref()).ok())
           .collect_into(&mut result);
-    result
+    Data { hosts: result }
 }
 
 fn authenticate(sess: &mut ssh2::Session,
@@ -94,7 +100,7 @@ fn connect(host: &config::HostConfig,
 
 fn fetch_host_data(host: &config::HostConfig,
                    default: Option<&config::AuthConfig>)
-                   -> Result<Data, ssh2::Error> {
+                   -> Result<HostData, ssh2::Error> {
 
     // `tcp` needs to survive the scope, because on drop it closes the connection.
     let (_tcp, sess) = try!(connect(host, default));
@@ -113,16 +119,20 @@ fn prepare_host(host: &config::HostConfig,
 
     // `tcp` needs to survive the scope, because on drop it closes the connection.
     let (_tcp, sess) = try!(connect(host, default));
-    let mut remote_file = try!(sess.scp_send(path::Path::new("fetch.py"), 0o755, script_data.len() as u64, None));
+    let mut remote_file = try!(sess.scp_send(path::Path::new("fetch.py"),
+                                             0o755,
+                                             script_data.len() as u64,
+                                             None));
     try!(remote_file.write_all(script_data.as_bytes()));
     Ok(())
 }
 
-pub fn prepare_hosts(config: &config::Config) -> Vec<Option<Box<error::Error + Send + Sync>>> {
+pub fn prepare_hosts(config: &config::Config)
+                     -> Vec<Option<Box<error::Error + Send + Sync>>> {
     let mut result = Vec::new();
     config.hosts
-        .par_iter()
-        .map(|host| prepare_host(host, config.default.as_ref()).err())
-        .collect_into(&mut result);
+          .par_iter()
+          .map(|host| prepare_host(host, config.default.as_ref()).err())
+          .collect_into(&mut result);
     result
 }

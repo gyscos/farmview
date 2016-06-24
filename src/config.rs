@@ -11,6 +11,8 @@ pub struct Config {
     pub default: Option<AuthConfig>,
 
     pub hosts: Vec<HostConfig>,
+    // Seconds between two refresh rates
+    pub refresh_delay: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

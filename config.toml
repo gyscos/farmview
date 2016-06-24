@@ -1,3 +1,5 @@
+refresh_delay = 30
+
 [http]
 	port = 8001
 

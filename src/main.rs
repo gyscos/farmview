@@ -10,6 +10,7 @@ extern crate rayon;
 
 mod config;
 mod fetch;
+mod server;
 
 use clap::{Arg, App};
 
@@ -46,11 +47,16 @@ fn main() {
 
     let port = config.http.as_ref().map_or(8080, |http| http.port);
 
-    println!("Running webserver on port {:?}", port);
+    let server = server::Server::new(config);
+    server.stop();
+    std::thread::sleep_ms(20000);
+    println!("{:?}", *server.latest_data());
 
-    println!("{:?}", fetch::prepare_hosts(&config));
+    // println!("Running webserver on port {:?}", port);
 
-    println!("{:?}", fetch::fetch_data(&config));
+    // println!("{:?}", fetch::prepare_hosts(&config));
+
+    // println!("{:?}", fetch::fetch_data(&config));
 
 }
 
