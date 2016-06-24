@@ -17,3 +17,9 @@
 	iface = "em1"
 	address = "choi.diffbot.com"
 	disks = []
+
+[[hosts]]
+	name = "Choi8"
+	iface = "eno1"
+	address = "choi8.diffbot.com"
+	disks = []

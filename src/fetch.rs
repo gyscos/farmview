@@ -13,6 +13,7 @@ use ssh2;
 pub struct Data {
     hostname: Option<String>,
     nproc: Option<u8>,
+    // Directly from the `uptime` command
     uptime: Option<[f32; 3]>,
     memory: Option<MemoryData>,
     disks: Vec<DiskData>,
@@ -21,21 +22,28 @@ pub struct Data {
 
 #[derive(Default, Debug, Deserialize)]
 pub struct MemoryData {
+    // In kiB
     total: usize,
+    // In kiB
     used: usize,
 }
 
 #[derive(Default, Debug, Deserialize)]
 pub struct DiskData {
+    // In kiB
     size: usize,
+    // In kiB
     available: usize,
+
     mount: String,
     device: String,
 }
 
 #[derive(Default, Debug, Deserialize)]
 pub struct NetworkData {
+    // In MB/s
     rx: f32,
+    // In MB/s
     tx: f32,
 }
 
