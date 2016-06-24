@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+import argparse
 
 
 def run(args, **kwargs):
@@ -9,13 +10,19 @@ def run(args, **kwargs):
 
 
 def main():
+    # Expects one argument: the network interface name
+    parser = argparse.ArgumentParser(description='fetches various information')
+    parser.add_argument('iface', metavar='IFACE',
+                        help='network interface to monitor')
+    args = parser.parse_args()
+
     print(json.dumps({
         'hostname': get_hostname(),
         'nproc': get_nproc(),
         'uptime': get_uptime(),
         'memory': get_memory_info(),
         'disks': get_disks(),
-        'network': get_traffic()
+        'network': get_traffic(args.iface)
     }))
 
 
@@ -73,11 +80,10 @@ def get_disks():
         return []
 
 
-def get_traffic():
+def get_traffic(iface):
     try:
         lines = [line.split() for line in
-                 run(['vnstat', '-tr']).split('\n')[3:5]]
-        # run(['vnstat', '-tr', '-i', 'wlp0s20u3u1']).split('\n')[3:5]]
+                 run(['vnstat', '-i', iface, '-tr']).split('\n')[3:5]]
         rx = float(lines[0][1])
         tx = float(lines[1][1])
         return {'rx': rx,

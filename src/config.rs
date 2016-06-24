@@ -22,6 +22,7 @@ pub struct HttpConfig {
 pub struct HostConfig {
     pub name: String,
     pub address: String,
+    pub iface: String,
     pub disks: Vec<String>,
     pub auth: Option<AuthConfig>,
 }

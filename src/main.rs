@@ -48,6 +48,8 @@ fn main() {
 
     println!("Running webserver on port {:?}", port);
 
+    println!("{:?}", fetch::prepare_hosts(&config));
+
     println!("{:?}", fetch::fetch_data(&config));
 
 }

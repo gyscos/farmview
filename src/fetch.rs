@@ -88,10 +88,11 @@ fn fetch_host_data(host: &config::HostConfig,
                    default: Option<&config::AuthConfig>)
                    -> Result<Data, ssh2::Error> {
 
-    let (tcp, sess) = try!(connect(host, default));
+    // `tcp` needs to survive the scope, because on drop it closes the connection.
+    let (_tcp, sess) = try!(connect(host, default));
 
     let mut channel = try!(sess.channel_session());
-    try!(channel.exec("./fetch.py"));
+    try!(channel.exec(&format!("./fetch.py {}", host.iface)));
     Ok(serde_json::from_reader(channel).unwrap())
 }
 
@@ -102,7 +103,8 @@ fn prepare_host(host: &config::HostConfig,
     // Directly include the script in the executable
     let script_data = include_str!("../data/fetch.py");
 
-    let (tcp, sess) = try!(connect(host, default));
+    // `tcp` needs to survive the scope, because on drop it closes the connection.
+    let (_tcp, sess) = try!(connect(host, default));
     let mut remote_file = try!(sess.scp_send(path::Path::new("fetch.py"), 0o755, script_data.len() as u64, None));
     try!(remote_file.write_all(script_data.as_bytes()));
     Ok(())

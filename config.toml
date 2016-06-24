@@ -9,4 +9,11 @@
 [[hosts]]
 	name = "Diffy"
 	address = "diffy.diffbot.com"
+	iface = "em1"
 	disks = ["/dev/sda"]
+
+[[hosts]]
+	name = "Choi"
+	iface = "em1"
+	address = "choi.diffbot.com"
+	disks = []
