@@ -30,7 +30,6 @@ impl Server {
         let cloned = result.clone();
         thread::spawn(move || {
             // Refresh once immediately
-            println!("Refreshing!");
             cloned.refresh();
 
             while *cloned.running.lock().unwrap() {
