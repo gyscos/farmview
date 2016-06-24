@@ -59,6 +59,19 @@ pub fn fetch_data(config: &config::Config) -> Data {
           .par_iter()
           .map(|host| fetch_host_data(host, config.default.as_ref()).ok())
           .collect_into(&mut result);
+
+    // Post-process the data, using the configuration in parallel
+    for (conf, host) in config.hosts.iter().zip(&mut result) {
+        // Skip hosts without result
+        if let &mut Some(ref mut host) = host {
+            // Only keep disks that are not ignored
+            host.disks.retain(|data| {
+                !conf.ignored_disks.contains(&data.device) &&
+                !conf.ignored_disks.contains(&data.mount)
+            });
+        }
+    }
+
     Data { hosts: result }
 }
 
@@ -87,15 +100,16 @@ fn connect(host: &config::HostConfig,
            default: Option<&config::AuthConfig>)
            -> Result<(TcpStream, ssh2::Session), ssh2::Error> {
 
+    // TODO: Don't panic on error
     let tcp = TcpStream::connect((&*host.address, 22)).unwrap();
 
+    // An error here means something very wrong is going on.
     let mut sess = ssh2::Session::new().unwrap();
     try!(sess.handshake(&tcp));
     try!(authenticate(&mut sess, host, default));
 
     Ok((tcp, sess))
 }
-
 
 
 fn fetch_host_data(host: &config::HostConfig,
@@ -107,6 +121,9 @@ fn fetch_host_data(host: &config::HostConfig,
 
     let mut channel = try!(sess.channel_session());
     try!(channel.exec(&format!("./fetch.py {}", host.iface)));
+    // A JSON error here means the script went mad.
+    // ... or just a connection issue maybe?
+    // TODO: don't panic on error
     Ok(serde_json::from_reader(channel).unwrap())
 }
 
