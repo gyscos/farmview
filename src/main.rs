@@ -7,10 +7,14 @@ extern crate toml;
 extern crate xdg;
 extern crate ssh2;
 extern crate rayon;
+extern crate hyper;
+extern crate reroute;
 
 mod config;
+mod data;
 mod fetch;
 mod server;
+mod http;
 
 use clap::{Arg, App};
 
@@ -34,9 +38,8 @@ fn main() {
         Some(path) => std::path::PathBuf::from(path),
         None => default_config_path().unwrap(),
     };
-    println!("Using config file {:?}", config_path);
 
-    // TODO: at least print an error message if config cannot be loaded
+    println!("Using config file {:?}", config_path);
     let config = match config::read_config(&config_path) {
         Ok(config) => config,
         Err(e) => {
@@ -45,19 +48,11 @@ fn main() {
         }
     };
 
-    let port = config.http.as_ref().map_or(8080, |http| http.port);
 
-    let server = server::Server::new(config);
-    server.stop();
-    std::thread::sleep_ms(20000);
-    println!("{:?}", *server.latest_data());
-
-    // println!("Running webserver on port {:?}", port);
-
-    // println!("{:?}", fetch::prepare_hosts(&config));
-
-    // println!("{:?}", fetch::fetch_data(&config));
-
+    // And off we go!
+    http::serve(config, move |config| {
+        config::write_config(&config_path, config).unwrap();
+    });
 }
 
 fn default_config_path() -> std::io::Result<std::path::PathBuf> {

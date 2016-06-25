@@ -1,4 +1,5 @@
 use config;
+use data::{Data, HostData};
 
 use std::error;
 use std::path;
@@ -9,49 +10,6 @@ use rayon::prelude::*;
 use serde_json;
 use ssh2;
 
-#[derive(Default, Debug, Deserialize)]
-pub struct Data {
-    hosts: Vec<Option<HostData>>,
-}
-
-/// This is what's produced by `fetch_data` regularly.
-#[derive(Default, Debug, Deserialize)]
-pub struct HostData {
-    hostname: Option<String>,
-    nproc: Option<u8>,
-    // Directly from the `uptime` command
-    uptime: Option<[f32; 3]>,
-    memory: Option<MemoryData>,
-    disks: Vec<DiskData>,
-    network: Option<NetworkData>,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct MemoryData {
-    // In kiB
-    total: usize,
-    // In kiB
-    used: usize,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct DiskData {
-    // In kiB
-    size: usize,
-    // In kiB
-    available: usize,
-
-    mount: String,
-    device: String,
-}
-
-#[derive(Default, Debug, Deserialize)]
-pub struct NetworkData {
-    // In MB/s
-    rx: f32,
-    // In MB/s
-    tx: f32,
-}
 
 pub fn fetch_data(config: &config::Config) -> Data {
     let mut result = Vec::new();
@@ -98,10 +56,10 @@ fn authenticate(sess: &mut ssh2::Session,
 
 fn connect(host: &config::HostConfig,
            default: Option<&config::AuthConfig>)
-           -> Result<(TcpStream, ssh2::Session), ssh2::Error> {
+           -> Result<(TcpStream, ssh2::Session), Box<error::Error + Send + Sync>> {
 
     // TODO: Don't panic on error
-    let tcp = TcpStream::connect((&*host.address, 22)).unwrap();
+    let tcp = try!(TcpStream::connect((&*host.address, 22)));
 
     // An error here means something very wrong is going on.
     let mut sess = ssh2::Session::new().unwrap();
@@ -114,7 +72,7 @@ fn connect(host: &config::HostConfig,
 
 fn fetch_host_data(host: &config::HostConfig,
                    default: Option<&config::AuthConfig>)
-                   -> Result<HostData, ssh2::Error> {
+                   -> Result<HostData, Box<error::Error + Send + Sync>> {
 
     // `tcp` needs to survive the scope, because on drop it closes the connection.
     let (_tcp, sess) = try!(connect(host, default));
@@ -124,7 +82,9 @@ fn fetch_host_data(host: &config::HostConfig,
     // A JSON error here means the script went mad.
     // ... or just a connection issue maybe?
     // TODO: don't panic on error
-    Ok(serde_json::from_reader(channel).unwrap())
+    let result = try!(serde_json::from_reader(channel));
+
+    Ok(result)
 }
 
 fn prepare_host(host: &config::HostConfig,

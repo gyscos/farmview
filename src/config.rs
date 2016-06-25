@@ -5,7 +5,7 @@ use std::io::{self, Read, Write};
 
 // Serialization made with serde
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Config {
     pub http: Option<HttpConfig>,
     pub default: Option<AuthConfig>,
@@ -15,12 +15,12 @@ pub struct Config {
     pub refresh_delay: Option<u64>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct HttpConfig {
-    pub port: i32,
+    pub port: u16,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct HostConfig {
     pub name: String,
     pub address: String,
@@ -29,7 +29,7 @@ pub struct HostConfig {
     pub auth: Option<AuthConfig>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct AuthConfig {
     pub login: String,
     pub keypair: Option<String>,
