@@ -10,7 +10,8 @@ use reroute;
 // We'll use a server::Server to actually process anything.
 // Here, we just set up the http handlers to redirect queries.
 // We do the translation from request to json to actual types.
-pub fn serve<F: 'static + Send + Sync + Fn(&Config)>(config: Config, config_sync: F) {
+pub fn serve<F: 'static + Send + Sync + Fn(&Config)>(config: Config,
+                                                     config_sync: F) {
     let port = config.http.as_ref().map_or(8080, |http| http.port);
     let config_sync_ = Arc::new(config_sync);
 
@@ -24,7 +25,9 @@ pub fn serve<F: 'static + Send + Sync + Fn(&Config)>(config: Config, config_sync
         // Only HTML output - prints the dashboard and everything.
         let data = server_.latest_data();
         match *data.deref() {
-            Some(ref data) => resp.send(&serde_json::to_vec(data).unwrap()).ok(),
+            Some(ref data) => {
+                resp.send(&serde_json::to_vec(data).unwrap()).ok()
+            }
             None => resp.send(b"No data yet").ok(),
         };
     });
@@ -48,7 +51,9 @@ pub fn serve<F: 'static + Send + Sync + Fn(&Config)>(config: Config, config_sync
         // We don't even set a authentication setting here.
         match server_.with_conf(|conf| {
             // Look for existing host
-            if let Some(_) = conf.hosts.iter().find(|host| &host.address == hostname) {
+            if let Some(_) = conf.hosts
+                                 .iter()
+                                 .find(|host| &host.address == hostname) {
                 return Err(format!("Host {} already exists", hostname));
             }
 
@@ -73,7 +78,9 @@ pub fn serve<F: 'static + Send + Sync + Fn(&Config)>(config: Config, config_sync
         let hostname = &captures.unwrap()[1];
         // Look for existing host
         match server_.with_conf(|conf| {
-            match conf.hosts.iter_mut().find(|host| &host.address == hostname) {
+            match conf.hosts
+                      .iter_mut()
+                      .find(|host| &host.address == hostname) {
                 Some(host) => {
                     // Do the actual edit.
                     // Maybe directly a serialized HostConfig?

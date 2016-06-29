@@ -41,4 +41,3 @@ pub struct NetworkData {
     // In MB/s
     pub tx: f32,
 }
-

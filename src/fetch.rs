@@ -54,9 +54,10 @@ fn authenticate(sess: &mut ssh2::Session,
     Ok(())
 }
 
-fn connect(host: &config::HostConfig,
-           default: Option<&config::AuthConfig>)
-           -> Result<(TcpStream, ssh2::Session), Box<error::Error + Send + Sync>> {
+fn connect
+    (host: &config::HostConfig,
+     default: Option<&config::AuthConfig>)
+     -> Result<(TcpStream, ssh2::Session), Box<error::Error + Send + Sync>> {
 
     // TODO: Don't panic on error
     let tcp = try!(TcpStream::connect((&*host.address, 22)));
