@@ -1,26 +1,84 @@
 refresh_delay = 30
 
 [http]
-	port = 8001
+    port = 8001
 
 [default]
-	login = "ubuntu"
-	keypair = "USW2_KeyPair.pem"
+    login = "ubuntu"
+    keypair = "USW2_KeyPair.pem"
 
 
 [[hosts]]
-	name = "Diffy"
-	address = "diffy.diffbot.com"
-	iface = "em1"
+    name = "www3"
+    address = "www3.diffbot.com"
+    iface = "eth0"
+    location = "AWS"
 
 [[hosts]]
-	name = "Choi"
-	iface = "em1"
-	address = "choi.diffbot.com"
-	ignored_disks = []
+    name = "www4"
+    address = "www4.diffbot.com"
+    iface = "eth0"
+    location = "AWS"
 
 [[hosts]]
-	name = "Choi8"
-	iface = "eno1"
-	address = "choi8.diffbot.com"
-	ignored_disks = []
+    name = "Neo"
+    address = "neo.diffbot.com"
+    iface = "eth0"
+    location = "9.70"
+    ignored_disks = ["/boot"]
+
+[[hosts]]
+    name = "Choi"
+    iface = "em1"
+    address = "choi.diffbot.com"
+    location = "9.71"
+    ignored_disks = ["/boot/efi"]
+
+[[hosts]]
+    name = "Choi2"
+    iface = "em1"
+    address = "choi2.diffbot.com"
+    location = "9.71"
+    ignored_disks = ["/boot/efi"]
+
+[[hosts]]
+    name = "Choi3"
+    iface = "eno1"
+    address = "choi3.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.73"
+
+[[hosts]]
+    name = "Choi4"
+    iface = "eno1"
+    address = "choi4.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.77"
+
+[[hosts]]
+    name = "Choi5"
+    iface = "eno1"
+    address = "choi5.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.77"
+
+[[hosts]]
+    name = "Choi6"
+    iface = "eno1"
+    address = "choi6.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.77"
+
+[[hosts]]
+    name = "Choi7"
+    iface = "eno1"
+    address = "choi7.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.77"
+
+[[hosts]]
+    name = "Choi8"
+    iface = "eno1"
+    address = "choi8.diffbot.com"
+    ignored_disks = ["/boot/efi"]
+    location = "9.77"

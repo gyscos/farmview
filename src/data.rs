@@ -6,12 +6,20 @@ pub struct Data {
 /// This is what's produced by `fetch_data` regularly.
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct HostData {
+    #[serde(skip_serializing_if="Option::is_none")]
     pub hostname: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub location: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub nproc: Option<u8>,
     // Directly from the `uptime` command
+    #[serde(skip_serializing_if="Option::is_none")]
     pub uptime: Option<[f32; 3]>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub memory: Option<MemoryData>,
+
     pub disks: Vec<DiskData>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub network: Option<NetworkData>,
 }
 
@@ -36,8 +44,13 @@ pub struct DiskData {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct NetworkData {
-    // In MB/s
-    pub rx: f32,
-    // In MB/s
-    pub tx: f32,
+    // In kB/s
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub rx: Option<f32>,
+    // In kB/s
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub tx: Option<f32>,
+
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub ip: Option<String>,
 }

@@ -14,9 +14,11 @@ use ssh2;
 pub fn fetch_data(config: &config::Config) -> Data {
     let mut result = Vec::new();
     config.hosts
-          .par_iter()
-          .map(|host| fetch_host_data(host, config.default.as_ref()).ok())
-          .collect_into(&mut result);
+        .par_iter()
+        .map(|host| {
+            Some(fetch_host_data(host, config.default.as_ref()).unwrap())
+        })
+        .collect_into(&mut result);
 
     // Post-process the data, using the configuration in parallel
     for (conf, host) in config.hosts.iter().zip(&mut result) {
@@ -24,8 +26,13 @@ pub fn fetch_data(config: &config::Config) -> Data {
         if let &mut Some(ref mut host) = host {
             // Only keep disks that are not ignored
             host.disks.retain(|data| {
-                !conf.ignored_disks.contains(&data.device) &&
-                !conf.ignored_disks.contains(&data.mount)
+                conf.ignored_disks
+                    .as_ref()
+                    .map(|disks| {
+                        !disks.contains(&data.device) &&
+                        !disks.contains(&data.mount)
+                    })
+                    .unwrap_or(true)
             });
         }
     }
@@ -75,15 +82,18 @@ fn fetch_host_data(host: &config::HostConfig,
                    default: Option<&config::AuthConfig>)
                    -> Result<HostData, Box<error::Error + Send + Sync>> {
 
-    // `tcp` needs to survive the scope, because on drop it closes the connection.
+    // `tcp` needs to survive the scope,
+    // because on drop it closes the connection.
+    // But we're not using it, so an underscore
+    // will avoid `unused` warnings.
     let (_tcp, sess) = try!(connect(host, default));
 
     let mut channel = try!(sess.channel_session());
     try!(channel.exec(&format!("./fetch.py {}", host.iface)));
     // A JSON error here means the script went mad.
     // ... or just a connection issue maybe?
-    // TODO: don't panic on error
-    let result = try!(serde_json::from_reader(channel));
+    let mut result: HostData = try!(serde_json::from_reader(channel));
+    result.location = host.location.clone();
 
     Ok(result)
 }
@@ -109,8 +119,8 @@ pub fn prepare_hosts(config: &config::Config)
                      -> Vec<Option<Box<error::Error + Send + Sync>>> {
     let mut result = Vec::new();
     config.hosts
-          .par_iter()
-          .map(|host| prepare_host(host, config.default.as_ref()).err())
-          .collect_into(&mut result);
+        .par_iter()
+        .map(|host| prepare_host(host, config.default.as_ref()).err())
+        .collect_into(&mut result);
     result
 }

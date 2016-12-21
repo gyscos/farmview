@@ -6,23 +6,24 @@ version = "0.1.0"
 [dependencies]
 clap = "2.6.0"
 rayon = "0.4.0"
-reroute = "0.2.2"
-serde = "0.7.10"
-serde_json = "0.7.1"
-serde_macros = "0.7.10"
+reroute = "0.3.0"
+serde = "0.8.17"
+serde_derive = "0.8.17"
+serde_json = "0.8.4"
 ssh2 = "0.2.12"
+tera = "0.5.0"
 xdg = "2.0.0"
 
 [dependencies.handlebars]
 default-features = false
 features = ["serde_type"]
-version = "0.17.0"
+version = "0.22.0"
+
+[dependencies.hyper]
+features = ["serde-serialization"]
+version = "0.9.11"
 
 [dependencies.toml]
 default-features = false
 features = ["serde"]
-version = "0.1"
-
-[dependencies.hyper]
-features = ["serde-serialization"]
-version = "0.9.9"
+version = "0.2"

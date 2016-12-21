@@ -8,7 +8,7 @@ use std::time::Duration;
 
 pub struct Server {
     config: sync::Mutex<Config>,
-    data: sync::RwLock<Option<Data>>,
+    data: sync::RwLock<Data>,
     running: sync::Mutex<bool>,
 }
 
@@ -21,11 +21,10 @@ impl Server {
     /// Creates a new Server, and starts a separate thread to periodically refresh the data.
     pub fn new(config: Config) -> sync::Arc<Self> {
         // Prepare the hosts the first time
-        prepare_hosts(&config);
 
         let result = sync::Arc::new(Server {
             config: sync::Mutex::new(config),
-            data: sync::RwLock::new(None),
+            data: sync::RwLock::new(Data::default()),
             // Indicate that the refresh thread is running
             running: sync::Mutex::new(true),
         });
@@ -34,8 +33,10 @@ impl Server {
         let cloned = result.clone();
         thread::spawn(move || {
             // Refresh once immediately
+            prepare_hosts(&cloned.current_conf());
             cloned.refresh();
 
+            // TODO: select! on a refresh channel and a timer.
             while *cloned.running.lock().unwrap() {
                 thread::sleep(Duration::from_secs(cloned.refresh_delay()));
                 cloned.refresh();
@@ -52,21 +53,18 @@ impl Server {
     /// Update the configuration, and refresh everything.
     ///
     /// You should run this async (in a thread::spawn for instance).
-    pub fn with_conf<E, F: FnOnce(&mut Config) -> Result<(), E>>
-        (&self,
-         update: F)
-         -> Result<(), E> {
+    pub fn with_conf<E, F>(&self, update: F) -> Result<(), E>
+        where F: FnOnce(&mut Config) -> Result<(), E>
+    {
 
-        let mut config = self.current_conf();
-        try!(update(&mut config));
-
-        // Now let's push the script again and refresh
-        prepare_hosts(&config);
-        drop(config);
+        {
+            let mut config = self.current_conf();
+            try!(update(&mut config));
+            prepare_hosts(&config);
+        }
 
         // And then just refresh
         // TODO: send a signal to the refresh thread instead?
-        // TODO: write this to disk?
         self.refresh();
         Ok(())
     }
@@ -76,7 +74,7 @@ impl Server {
     }
 
     /// Get a read access to the latest data.
-    pub fn latest_data(&self) -> sync::RwLockReadGuard<Option<Data>> {
+    pub fn latest_data(&self) -> sync::RwLockReadGuard<Data> {
         self.data.read().unwrap()
     }
 
@@ -86,16 +84,21 @@ impl Server {
         let conf = self.current_conf().clone();
         let fresh = fetch_data(&conf);
         let mut data = self.data.write().unwrap();
-        *data = Some(fresh);
+        *data = fresh;
         println!("Refreshed.");
     }
 
     /// Stops the refresh thread.
     ///
-    /// You MUST call this, or the refresh thread will
-    /// keep running in the background indefinitely!
+    /// This is called automatically on drop.
     pub fn stop(&self) {
         let mut running = self.running.lock().unwrap();
         *running = false;
+    }
+}
+
+impl Drop for Server {
+    fn drop(&mut self) {
+        self.stop();
     }
 }

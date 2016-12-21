@@ -7,11 +7,14 @@ use std::io::{self, Read, Write};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Config {
+    #[serde(skip_serializing_if="Option::is_none")]
     pub http: Option<HttpConfig>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub default: Option<AuthConfig>,
 
     pub hosts: Vec<HostConfig>,
     // Seconds between two refresh rates
+    #[serde(skip_serializing_if="Option::is_none")]
     pub refresh_delay: Option<u64>,
 }
 
@@ -25,14 +28,21 @@ pub struct HostConfig {
     pub name: String,
     pub address: String,
     pub iface: String,
-    pub ignored_disks: Vec<String>,
+
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub ignored_disks: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub auth: Option<AuthConfig>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub location: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct AuthConfig {
     pub login: String,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub keypair: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub password: Option<String>,
 }
 

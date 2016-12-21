@@ -70,7 +70,7 @@ def get_disks():
     try:
         disks = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
         disks = [disk for disk in disks
-                 if disk and disk[0].startswith('/dev/sd')]
+                 if disk and not disk[0] in ["tmpfs", "udev", "cgmfs", "none"]]
         return [{'device': disk[0],
                  'size': int(disk[1]),
                  'used': int(disk[2]),
@@ -81,15 +81,22 @@ def get_disks():
 
 
 def get_traffic(iface):
+    result = {}
+
     try:
-        lines = [line.split() for line in
-                 run(['vnstat', '-i', iface, '-tr']).split('\n')[3:5]]
-        rx = float(lines[0][1])
-        tx = float(lines[1][1])
-        return {'rx': rx,
-                'tx': tx}
+        network_ip = run(['ip', 'addr', 'show', iface, 'scope', 'global']).split('\n')[2].split()[1]
+        result['ip'] = network_ip.split('/')[0]
     except:
-        return None
+        pass
+
+    try:
+        tokens = run(['ifstat', '-i', iface, '5', '1']).split('\n')[2].split()
+        result['rx'] = float(tokens[0])
+        result['tx'] = float(tokens[1])
+    except:
+        pass
+
+    return result
 
 
 if __name__ == '__main__':
