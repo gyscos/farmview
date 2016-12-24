@@ -1,6 +1,6 @@
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Data {
-    pub hosts: Vec<Option<HostData>>,
+    pub hosts: Vec<HostData>,
 }
 
 /// This is what's produced by `fetch_data` regularly.
@@ -33,10 +33,12 @@ pub struct MemoryData {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct DiskData {
-    // In kiB
+    // In bytes
     pub size: usize,
-    // In kiB
+    // In bytes
     pub available: usize,
+    // In bytes
+    pub used: usize,
 
     pub mount: String,
     pub device: String,

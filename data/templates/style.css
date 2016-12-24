@@ -7,9 +7,16 @@ body {
     padding-top: 30px;
 }
 
-.container {
-    vertical-align: top;
-    padding: 0 30px;
+p {
+    margin: 0px;
+}
+
+li {
+    display: inline-block;
+}
+
+ul {
+    margin: 0px;
 }
 
 .columns {
@@ -40,9 +47,15 @@ body {
     background-color:#ffffff;
 }
 
+.host-row:nth-child(even) {
+    background-color: #eeeeee;
+}
+
 .host-row {
     padding: 0px 15px;
+    font-size: 12px;
     border-bottom: 1px solid #dddddd;
+    white-space: nowrap;
 }
 
 .head {
@@ -56,16 +69,10 @@ body {
     margin-bottom: 5px;
 }
 
-.load {
-
+.value {
+    padding: 0px 2px;
 }
 
-.memory {
-}
-
-.network {
-}
-
-.disks {
-
+.cpus {
+    color: #a9aebd;
 }

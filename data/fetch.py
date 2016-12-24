@@ -61,7 +61,7 @@ def get_memory_info():
 
         used = total - available
 
-        return {'used': used, 'total': total}
+        return {'used': used * 1024, 'total': total * 1024}
     except:
         return None
 
@@ -71,11 +71,12 @@ def get_disks():
         disks = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
         disks = [disk for disk in disks
                  if disk and not disk[0] in ["tmpfs", "udev", "cgmfs", "none"]]
-        return [{'device': disk[0],
-                 'size': int(disk[1]),
-                 'used': int(disk[2]),
-                 'available': int(disk[3]),
-                 'mount': disk[5]} for disk in disks]
+        return sorted([{'device': disk[0],
+                 'size': int(disk[1]) * 1024,
+                 'used': int(disk[2]) * 1024,
+                 'available': int(disk[3]) * 1024,
+                 'mount': disk[5]} for disk in disks],
+                 key = lambda disk: disk['mount'])
     except:
         return []
 
@@ -91,8 +92,8 @@ def get_traffic(iface):
 
     try:
         tokens = run(['ifstat', '-i', iface, '5', '1']).split('\n')[2].split()
-        result['rx'] = float(tokens[0])
-        result['tx'] = float(tokens[1])
+        result['rx'] = float(tokens[0]) * 1024
+        result['tx'] = float(tokens[1]) * 1024
     except:
         pass
 

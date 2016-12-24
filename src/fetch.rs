@@ -1,4 +1,4 @@
-use config;
+use config::{Config, HostConfig, AuthConfig, LocationConfig};
 use data::{Data, HostData};
 
 use std::error;
@@ -10,39 +10,44 @@ use rayon::prelude::*;
 use serde_json;
 use ssh2;
 
-
-pub fn fetch_data(config: &config::Config) -> Data {
-    let mut result = Vec::new();
-    config.hosts
+pub fn fetch_data(config: &Config) -> Data {
+    let mut result: Vec<HostData> = config.hosts
         .par_iter()
-        .map(|host| {
-            Some(fetch_host_data(host, config.default.as_ref()).unwrap())
+        .filter_map(|host| {
+            fetch_host_data(host, config.default.as_ref(), &config.locations)
+                .ok()
         })
-        .collect_into(&mut result);
+        .collect();
+
+    let empty = String::new();
+    result.sort_by(|a, b| {
+        a.location
+            .as_ref()
+            .unwrap_or(&empty)
+            .cmp(b.location.as_ref().unwrap_or(&empty))
+    });
 
     // Post-process the data, using the configuration in parallel
     for (conf, host) in config.hosts.iter().zip(&mut result) {
         // Skip hosts without result
-        if let &mut Some(ref mut host) = host {
-            // Only keep disks that are not ignored
-            host.disks.retain(|data| {
-                conf.ignored_disks
-                    .as_ref()
-                    .map(|disks| {
-                        !disks.contains(&data.device) &&
-                        !disks.contains(&data.mount)
-                    })
-                    .unwrap_or(true)
-            });
-        }
+        // Only keep disks that are not ignored
+        host.disks.retain(|data| {
+            conf.ignored_disks
+                .as_ref()
+                .map(|disks| {
+                    !disks.contains(&data.device) &&
+                    !disks.contains(&data.mount)
+                })
+                .unwrap_or(true)
+        })
     }
 
     Data { hosts: result }
 }
 
 fn authenticate(sess: &mut ssh2::Session,
-                host: &config::HostConfig,
-                default: Option<&config::AuthConfig>)
+                host: &HostConfig,
+                default: Option<&AuthConfig>)
                 -> Result<(), ssh2::Error> {
 
     // Do we have an authentication? Or do we have a default one?
@@ -61,10 +66,11 @@ fn authenticate(sess: &mut ssh2::Session,
     Ok(())
 }
 
-fn connect
-    (host: &config::HostConfig,
-     default: Option<&config::AuthConfig>)
-     -> Result<(TcpStream, ssh2::Session), Box<error::Error + Send + Sync>> {
+type BoxedError = Box<error::Error + Send + Sync>;
+
+fn connect(host: &HostConfig,
+           default: Option<&AuthConfig>)
+           -> Result<(TcpStream, ssh2::Session), BoxedError> {
 
     // TODO: Don't panic on error
     let tcp = try!(TcpStream::connect((&*host.address, 22)));
@@ -78,8 +84,9 @@ fn connect
 }
 
 
-fn fetch_host_data(host: &config::HostConfig,
-                   default: Option<&config::AuthConfig>)
+fn fetch_host_data(host: &HostConfig,
+                   default: Option<&AuthConfig>,
+                   locations: &[LocationConfig])
                    -> Result<HostData, Box<error::Error + Send + Sync>> {
 
     // `tcp` needs to survive the scope,
@@ -93,13 +100,26 @@ fn fetch_host_data(host: &config::HostConfig,
     // A JSON error here means the script went mad.
     // ... or just a connection issue maybe?
     let mut result: HostData = try!(serde_json::from_reader(channel));
-    result.location = host.location.clone();
+    let location = result.network
+        .as_ref()
+        .and_then(|n| n.ip.as_ref())
+        .and_then(|ip| find_location(&ip, locations));
+
+    result.location = location.or(host.location.clone());
 
     Ok(result)
 }
 
-fn prepare_host(host: &config::HostConfig,
-                default: Option<&config::AuthConfig>)
+fn find_location(ip: &str, locations: &[LocationConfig]) -> Option<String> {
+    locations.iter().find(|l| match_ip(ip, &l.ips)).map(|l| l.name.clone())
+}
+
+fn match_ip(ip: &str, mask: &str) -> bool {
+    ip.starts_with(mask)
+}
+
+fn prepare_host(host: &HostConfig,
+                default: Option<&AuthConfig>)
                 -> Result<(), Box<error::Error + Send + Sync>> {
 
     // Directly include the script in the executable
@@ -115,7 +135,7 @@ fn prepare_host(host: &config::HostConfig,
     Ok(())
 }
 
-pub fn prepare_hosts(config: &config::Config)
+pub fn prepare_hosts(config: &Config)
                      -> Vec<Option<Box<error::Error + Send + Sync>>> {
     let mut result = Vec::new();
     config.hosts

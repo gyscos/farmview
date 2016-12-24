@@ -3,6 +3,7 @@ use fetch::{fetch_data, prepare_hosts};
 use data::Data;
 
 use std::sync;
+use std::time;
 use std::thread;
 use std::time::Duration;
 
@@ -81,11 +82,12 @@ impl Server {
     pub fn refresh(&self) {
         // Don't lock while we're fetching.
         println!("Refreshing.");
+        let start = time::Instant::now();
         let conf = self.current_conf().clone();
         let fresh = fetch_data(&conf);
         let mut data = self.data.write().unwrap();
         *data = fresh;
-        println!("Refreshed.");
+        println!("Refreshed ({:?})", start.elapsed());
     }
 
     /// Stops the refresh thread.

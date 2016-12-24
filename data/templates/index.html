@@ -12,61 +12,72 @@
     </head>
     <body>
         {% if hosts %}
-            <div class="container">
-                <div class="columns">
-                    {% for host in hosts %}
+        <div class="columns">
+            {% for host in hosts %}
 
-                    <div class="host">
-                        <div class="panel">
-                            <div class="head panel-heading host-row">
-                                <h4>
-                                    {{ host.hostname }}
-                                    {% if host.location %}
-                                        <span style="float: right;">[{{ host.location }}]</span>
-                                    {% endif %}
-                                </h4>
-                                {% if host.network.ip %}<p>{{ host.network.ip }}</p>{% endif %}
-                            </div>
-
-                            {% if host.uptime %}
-                            <div class="load host-row">
-                                Load: {{ host.uptime }} ({{ host.nproc }} cpus)
-                            </div>
+            <div class="host">
+                <div class="panel">
+                    <div class="head panel-heading host-row">
+                        <h4>
+                            {{ host.hostname }}
+                            {% if host.location %}
+                                <span style="float: right;">[{{ host.location }}]</span>
                             {% endif %}
-
-                            {% if host.memory %}
-                            <div class="memory host-row">
-                                Memory: {{ host.memory.used }} / {{ host.memory.total }}
-                            </div>
-                            {% endif %}
-
-                            {% if host.network.rx %}
-                            <div class="network host-row">
-                                <p>Download: {{ host.network.rx }} kB/s</p>
-                                <p>Upload: {{ host.network.tx }} kB/s</p>
-                            </div>
-                            {% endif %}
-
-                            {% if host.disks %}
-                            <div class="disks host-row">
-                                Disks
-
-                                {% for disk in host.disks %}
-                                <div class="disk">
-                                    {{ disk.mount }} : {{ disk.available }}kB / {{ disk.size }}kB
-                                </div>
-                                {% endfor %}
-
-                            </div>
-                            {% endif %}
-                        </div>
+                        </h4>
+                        {% if host.network.ip %}<p>{{ host.network.ip }}</p>{% endif %}
                     </div>
 
-                    {% endfor %}
+                    {% if host.uptime %}
+                    <div class="loads host-row">
+                        Load:
+                        <ul style="float: right;">
+                            {% for uptime in host.uptime %}
+                            <li class="value">{{ uptime | round }}</li>
+                            {% endfor %}
+                            <li class="value cpus">
+                                ({{ host.nproc }} cpus)
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if host.memory %}
+                    <div class="memory host-row">
+                        RAM:
+                        <ul style="float: right;"><li>{{ host.memory.used | filesizeformat }} / {{ host.memory.total | filesizeformat }}</li></ul>
+                    </div>
+                    {% endif %}
+
+                    {% if host.network.rx %}
+                    <div class="network host-row">
+                        <p>Network</p>
+                        <p>
+                        Down: {{ host.network.rx | filesizeformat }}/s
+                        <span style="float: right;">Up: {{ host.network.tx | filesizeformat }}/s</span>
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if host.disks %}
+                    <div class="disks host-row">
+                        Disks
+
+                        {% for disk in host.disks %}
+                        <div class="disk">
+                            {{ disk.mount }}
+                            <span style="float: right;">{{ disk.used | filesizeformat }} / {{ disk.size | filesizeformat }}</span>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+
+            {% endfor %}
+        </div>
         {% else %}
-            <p>No data yet</p>
+        <p style="text-align: center;">No data yet</p>
         {% endif %}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script crossorigin="anonymous"

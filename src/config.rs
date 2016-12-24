@@ -9,6 +9,8 @@ use std::io::{self, Read, Write};
 pub struct Config {
     #[serde(skip_serializing_if="Option::is_none")]
     pub http: Option<HttpConfig>,
+
+    pub locations: Vec<LocationConfig>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub default: Option<AuthConfig>,
 
@@ -16,6 +18,12 @@ pub struct Config {
     // Seconds between two refresh rates
     #[serde(skip_serializing_if="Option::is_none")]
     pub refresh_delay: Option<u64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct LocationConfig {
+    pub name: String,
+    pub ips: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
