@@ -17,7 +17,7 @@
 
             <div class="host">
                 <div class="panel">
-                    <div class="head panel-heading host-row">
+                    <div class="head panel-heading host-row padded">
                         <h4>
                             {{ host.hostname }}
                             {% if host.location %}
@@ -28,11 +28,11 @@
                     </div>
 
                     {% if host.uptime %}
-                    <div class="loads host-row">
-                        Load:
+                    <div class="loads host-row padded">
+                        <span class="title">Load:</span>
                         <ul style="float: right;">
                             {% for uptime in host.uptime %}
-                            <li class="value">{{ uptime | round }}</li>
+                            <li class="value">{{ uptime | round(precision=1) }}</li>
                             {% endfor %}
                             <li class="value cpus">
                                 ({{ host.nproc }} cpus)
@@ -42,15 +42,15 @@
                     {% endif %}
 
                     {% if host.memory %}
-                    <div class="memory host-row">
-                        RAM:
+                    <div class="memory host-row padded">
+                        <span class="title">RAM:</span>
                         <ul style="float: right;"><li>{{ host.memory.used | filesizeformat }} / {{ host.memory.total | filesizeformat }}</li></ul>
                     </div>
                     {% endif %}
 
                     {% if host.network.rx %}
-                    <div class="network host-row">
-                        <p>Network</p>
+                    <div class="network host-row padded">
+                        <p class="title">Network</p>
                         <p>
                         Down: {{ host.network.rx | filesizeformat }}/s
                         <span style="float: right;">Up: {{ host.network.tx | filesizeformat }}/s</span>
@@ -60,10 +60,10 @@
 
                     {% if host.disks %}
                     <div class="disks host-row">
-                        Disks
+                        <p class="padded title">Disks</p>
 
                         {% for disk in host.disks %}
-                        <div class="disk">
+                        <div class="disk padded" data-toggle="tooltip" title="{{disk.device}}">
                             {{ disk.mount }}
                             <span style="float: right;">{{ disk.used | filesizeformat }} / {{ disk.size | filesizeformat }}</span>
                         </div>
@@ -76,6 +76,7 @@
 
             {% endfor %}
         </div>
+        <div class="update-time">Last updated: {{update_time | date(format="%Y-%m-%d at %H:%M")}}</div>
         {% else %}
         <p style="text-align: center;">No data yet</p>
         {% endif %}

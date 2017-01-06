@@ -1,6 +1,8 @@
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Data {
     pub hosts: Vec<HostData>,
+
+    pub update_time: i64,
 }
 
 /// This is what's produced by `fetch_data` regularly.

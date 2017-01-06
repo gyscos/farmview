@@ -1,5 +1,3 @@
-#![feature(proc_macro)]
-
 #[macro_use]
 extern crate serde_derive;
 
@@ -15,6 +13,7 @@ extern crate ssh2;
 extern crate rayon;
 extern crate hyper;
 extern crate reroute;
+extern crate time;
 
 mod config;
 mod data;

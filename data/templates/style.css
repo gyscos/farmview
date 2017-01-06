@@ -4,7 +4,7 @@ body {
     font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
     line-height: 1.5;
-    padding-top: 30px;
+    padding: 30px;
 }
 
 p {
@@ -52,10 +52,25 @@ ul {
 }
 
 .host-row {
-    padding: 0px 15px;
     font-size: 12px;
     border-bottom: 1px solid #dddddd;
     white-space: nowrap;
+}
+
+.padded {
+    padding: 0px 15px;
+}
+
+.title {
+    font-weight: 600;
+}
+
+.disk:hover {
+    background-color: #ddd;
+}
+
+.disk {
+    cursor: pointer;
 }
 
 .head {
@@ -75,4 +90,10 @@ ul {
 
 .cpus {
     color: #a9aebd;
+}
+
+.update-time {
+    font-style: italic;
+    margin-left: 60px;
+    margin-top: 10px;
 }

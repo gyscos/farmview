@@ -10,13 +10,9 @@ serde = "0.8.20"
 serde_derive = "0.8.20"
 serde_json = "0.8.4"
 ssh2 = "0.3.1"
-tera = "0.5.0"
+tera = { git = "https://github.com/Keats/tera" }
 xdg = "2.0.0"
-
-[dependencies.reroute]
-features = ["serde-serialization"]
-default-features = false
-version = "0.3.0"
+time = "0.1"
 
 [dependencies.handlebars]
 default-features = false
@@ -24,9 +20,14 @@ features = ["serde_type"]
 version = "0.22.0"
 
 [dependencies.hyper]
-features = ["serde-serialization"]
 default-features = false
+features = ["serde-serialization"]
 version = "0.9.11"
+
+[dependencies.reroute]
+default-features = false
+features = ["serde-serialization"]
+version = "0.3.0"
 
 [dependencies.toml]
 default-features = false

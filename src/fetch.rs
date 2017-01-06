@@ -9,6 +9,7 @@ use std::net::TcpStream;
 use rayon::prelude::*;
 use serde_json;
 use ssh2;
+use time;
 
 pub fn fetch_data(config: &Config) -> Data {
     let mut result: Vec<HostData> = config.hosts
@@ -42,7 +43,11 @@ pub fn fetch_data(config: &Config) -> Data {
         })
     }
 
-    Data { hosts: result }
+    let now = time::now().to_timespec().sec;
+    Data {
+        hosts: result,
+        update_time: now,
+    }
 }
 
 fn authenticate(sess: &mut ssh2::Session,
