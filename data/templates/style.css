@@ -55,6 +55,8 @@ ul {
     font-size: 12px;
     border-bottom: 1px solid #dddddd;
     white-space: nowrap;
+    position: relative;
+    z-index: 1;
 }
 
 .padded {
@@ -71,6 +73,8 @@ ul {
 
 .disk {
     cursor: pointer;
+    position: relative;
+    z-index: 1;
 }
 
 .head {
@@ -96,4 +100,38 @@ ul {
     font-style: italic;
     margin-left: 60px;
     margin-top: 10px;
+}
+
+.percentage {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    display: block;
+    z-index: -1;
+    max-width: 100%;
+}
+
+.low {
+    background-color: #9f9;
+}
+
+.medium {
+    background-color: #fe8;
+}
+
+.high {
+    background-color: #fa9;
+}
+
+.low-mem {
+    background-color: #ddf;
+}
+
+.medium-mem {
+    background-color: #fb6;
+}
+
+.high-mem {
+    background-color: #f66;
 }

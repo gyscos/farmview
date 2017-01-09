@@ -2,10 +2,28 @@ use config::{Config, HostConfig};
 use server;
 
 use std::sync::Arc;
+use std::collections::HashMap;
 use hyper;
 use serde_json;
 use reroute;
-use tera::Tera;
+use tera;
+
+fn tier(value: tera::Value,
+         params: HashMap<String, tera::Value>)
+         -> tera::Result<tera::Value> {
+    let low = params.get("low").and_then(|low: &tera::Value| low.as_f64()).unwrap_or(0.5);
+    let high = params.get("high").and_then(|high: &tera::Value| high.as_f64()).unwrap_or(0.75);
+
+    let value = try_get_value!("tier", "value", f64, value);
+
+    if value < low {
+        Ok(tera::to_value("low"))
+    } else if value > high {
+        Ok(tera::to_value("high"))
+    } else {
+        Ok(tera::to_value("medium"))
+    }
+}
 
 // We'll use a server::Server to actually process anything.
 // Here, we just set up the http handlers to redirect queries.
@@ -21,9 +39,16 @@ pub fn serve<F>(config: Config, config_sync: F)
 
     let mut builder = reroute::RouterBuilder::new();
 
-    let mut tera = Tera::default();
-    tera.add_template("index.html", include_str!("../data/templates/index.html")).unwrap();
-    tera.add_template("style.css", include_str!("../data/templates/style.css")).unwrap();
+    let mut tera = tera::Tera::default();
+
+    tera.register_filter("tier", tier);
+
+    tera.add_template("index.html",
+                      include_str!("../data/templates/index.html"))
+        .unwrap();
+    tera.add_template("style.css",
+                      include_str!("../data/templates/style.css"))
+        .unwrap();
     let server_ = server.clone();
     builder.get("^/$", move |_, resp, _| {
         // Return plain HTML

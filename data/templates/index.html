@@ -1,95 +1,95 @@
 <html>
-    <head>
-        <title>Dashboard</title>
-        <meta content="60" http-equiv="refresh">
-        <link crossorigin="anonymous"
-              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-              integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ=="
-              rel="stylesheet" />
-        <style>
-{% include "style.css" %}
-        </style>
-    </head>
-    <body>
-        {% if hosts %}
-        <div class="columns">
-            {% for host in hosts %}
 
-            <div class="host">
-                <div class="panel">
-                    <div class="head panel-heading host-row padded">
-                        <h4>
+<head>
+    <title>Dashboard</title>
+    <meta content="60" http-equiv="refresh">
+    <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" rel="stylesheet" />
+    <style>
+        {% include "style.css" %}
+    </style>
+</head>
+
+<body>
+    {% if hosts %}
+    <div class="columns">
+        {% for host in hosts %}
+
+        <div class="host">
+            <div class="panel">
+                <div class="head panel-heading host-row padded">
+                    <h4>
                             {{ host.hostname }}
                             {% if host.location %}
                                 <span style="float: right;">[{{ host.location }}]</span>
                             {% endif %}
-                        </h4>
-                        {% if host.network.ip %}<p>{{ host.network.ip }}</p>{% endif %}
-                    </div>
+                        </h4> {% if host.network.ip %}
+                    <p>{{ host.network.ip }}</p>{% endif %}
+                </div>
 
-                    {% if host.uptime %}
-                    <div class="loads host-row padded">
-                        <span class="title">Load:</span>
-                        <ul style="float: right;">
-                            {% for uptime in host.uptime %}
-                            <li class="value">{{ uptime | round(precision=1) }}</li>
-                            {% endfor %}
-                            <li class="value cpus">
-                                ({{ host.nproc }} cpus)
-                            </li>
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    {% if host.memory %}
-                    <div class="memory host-row padded">
-                        <span class="title">RAM:</span>
-                        <ul style="float: right;"><li>{{ host.memory.used | filesizeformat }} / {{ host.memory.total | filesizeformat }}</li></ul>
-                    </div>
-                    {% endif %}
-
-                    {% if host.network.rx %}
-                    <div class="network host-row padded">
-                        <p class="title">Network</p>
-                        <p>
+                {% if host.uptime %}
+                <div class="loads host-row padded">
+                    <span class="percentage {{ host.uptime | first | tier(low=host.nproc*0.75, high=host.nproc) }}"
+                          style="width: {{ host.uptime | first * 50 / host.nproc}}%"></span>
+                    <span class="title">Load:</span>
+                    <ul style="float: right;">
+                        {% for uptime in host.uptime %}
+                        <li class="value">{{ uptime | round(precision=1) }}</li>
+                        {% endfor %}
+                        <li class="value cpus">
+                            ({{ host.nproc }} cpus)
+                        </li>
+                    </ul>
+                </div>
+                {% endif %} {% if host.memory %}
+                <div class="memory host-row padded">
+                    <span class="percentage {{ host.memory.used | tier(low=host.memory.total*0.5, high=host.memory.total*0.75) }}-mem"
+                          style="width: {{ host.memory.used * 100 / host.memory.total}}%"></span>
+                    <span class="title">RAM:</span>
+                    <ul style="float: right;">
+                        <li>{{ host.memory.used | filesizeformat }} / {{ host.memory.total | filesizeformat }}</li>
+                    </ul>
+                </div>
+                {% endif %} {% if host.network.rx %}
+                <div class="network host-row padded">
+                    <p class="title">Network</p>
+                    <p>
                         Down: {{ host.network.rx | filesizeformat }}/s
                         <span style="float: right;">Up: {{ host.network.tx | filesizeformat }}/s</span>
-                        </p>
-                    </div>
-                    {% endif %}
-
-                    {% if host.disks %}
-                    <div class="disks host-row">
-                        <p class="padded title">Disks</p>
-
-                        {% for disk in host.disks %}
-                        <div class="disk padded" data-toggle="tooltip" title="{{disk.device}}">
-                            {{ disk.mount }}
-                            <span style="float: right;">{{ disk.used | filesizeformat }} / {{ disk.size | filesizeformat }}</span>
-                        </div>
-                        {% endfor %}
-
-                    </div>
-                    {% endif %}
+                    </p>
                 </div>
+                {% endif %} {% if host.disks %}
+                <div class="disks host-row">
+                    <p class="padded title">Disks</p>
+
+                    {% for disk in host.disks %}
+                    <div class="disk padded" data-toggle="tooltip" title="{{disk.device}}">
+                        <span class="percentage {{ disk.used | tier(low=disk.size*0.5, high=disk.size*0.75) }}"
+                              style="width: {{ disk.used * 100 / disk.size}}%"></span>
+                        {{ disk.mount }}
+                        <span style="float: right;">{{ disk.used | filesizeformat }} / {{ disk.size | filesizeformat }}</span>
+                    </div>
+                    {% endfor %}
+
+                </div>
+                {% endif %}
             </div>
-
-            {% endfor %}
         </div>
-        <div class="update-time">Last updated: {{update_time | date(format="%Y-%m-%d at %H:%M")}}</div>
-        {% else %}
-        <p style="text-align: center;">No data yet</p>
-        {% endif %}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script crossorigin="anonymous"
-                integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ=="
-                src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
-        </script>
-        <script>
-$(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-})
-        </script>
 
-    </body>
+        {% endfor %}
+    </div>
+    <div class="update-time">Last updated: {{update_time | date(format="%Y-%m-%d at %H:%M")}}</div>
+    {% else %}
+    <p style="text-align: center;">No data yet</p>
+    {% endif %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Sk3nkD6mLTMOF0EOpNtsIry+s1CsaqQC1rVLTAy+0yc= sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+    </script>
+    <script>
+        $(function() {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+
+</body>
+
 </html>

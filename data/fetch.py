@@ -52,7 +52,7 @@ def get_memory_info():
         lines = [line.split() for line in memory.split('\n')]
         total = int(lines[0][1])
 
-        if 'available' in lines[2][1]:
+        if 'Available' in lines[2][0]:
             available = int(lines[2][1])
         else:
             free = int(lines[1][1])
