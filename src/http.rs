@@ -129,5 +129,5 @@ pub fn serve<F>(config: Config, config_sync: F)
     let router = builder.finalize().unwrap();
 
     println!("Now listening on port :{}", port);
-    hyper::Server::http(("localhost", port)).unwrap().handle(router).unwrap();
+    hyper::Server::http(("0.0.0.0", port)).unwrap().handle(router).unwrap();
 }

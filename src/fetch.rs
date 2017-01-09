@@ -15,8 +15,15 @@ pub fn fetch_data(config: &Config) -> Data {
     let mut result: Vec<HostData> = config.hosts
         .par_iter()
         .filter_map(|host| {
-            fetch_host_data(host, config.default.as_ref(), &config.locations)
-                .ok()
+            match fetch_host_data(host,
+                                  config.default.as_ref(),
+                                  &config.locations) {
+                Ok(result) => Some(result),
+                Err(err) => {
+                    println!("Error fetching {}: {:?}", host.address, err);
+                    None
+                }
+            }
         })
         .collect();
 
