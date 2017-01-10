@@ -34,3 +34,5 @@ refresh_delay = 30
     address = "192.168.0.15"
     iface = "eno1"
 ```
+
+Retrieving network speeds requires "ifstat" to be installed on the target machines, but everything else will keep working if it's missing.
