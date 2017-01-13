@@ -18,7 +18,19 @@ pub fn fetch_data(config: &Config) -> Data {
             match fetch_host_data(host,
                                   config.default.as_ref(),
                                   &config.locations) {
-                Ok(result) => Some(result),
+                Ok(mut result) => {
+                    result.disks.retain(|data| {
+                        host.ignored_disks
+                            .as_ref()
+                            .map(|disks| {
+                                println!("`{}` in {:?}", data.mount, disks);
+                                !disks.contains(&data.device) &&
+                                    !disks.contains(&data.mount)
+                            })
+                        .unwrap_or(true)
+                    });
+                    Some(result)
+                },
                 Err(err) => {
                     println!("Error fetching {}: {:?}", host.address, err);
                     None
@@ -34,21 +46,6 @@ pub fn fetch_data(config: &Config) -> Data {
             .unwrap_or(&empty)
             .cmp(b.location.as_ref().unwrap_or(&empty))
     });
-
-    // Post-process the data, using the configuration in parallel
-    for (conf, host) in config.hosts.iter().zip(&mut result) {
-        // Skip hosts without result
-        // Only keep disks that are not ignored
-        host.disks.retain(|data| {
-            conf.ignored_disks
-                .as_ref()
-                .map(|disks| {
-                    !disks.contains(&data.device) &&
-                    !disks.contains(&data.mount)
-                })
-                .unwrap_or(true)
-        })
-    }
 
     let now = time::now().to_timespec().sec;
     Data {
