@@ -23,7 +23,6 @@ pub fn fetch_data(config: &Config) -> Data {
                         host.ignored_disks
                             .as_ref()
                             .map(|disks| {
-                                println!("`{}` in {:?}", data.mount, disks);
                                 !disks.contains(&data.device) &&
                                     !disks.contains(&data.mount)
                             })

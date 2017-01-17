@@ -71,7 +71,31 @@ def get_disks():
         disks = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
         disks = [disk for disk in disks
                  if disk and not disk[0] in ["tmpfs", "udev", "cgmfs", "none"]]
+
+        def get_model(device):
+            fallback = None
+
+            try:
+                lines = run(['sudo', 'smartctl', '-i', device]).split('\n')
+
+                def to_spec(line):
+                    colon = line.index(':')
+                    return (line[:colon], line[colon+1:].strip())
+
+                specs = [to_spec(line) for line in lines if ':' in line]
+                specs = {spec[0]: spec[1] for spec in specs}
+
+                if 'Device Model' in specs:
+                    return specs['Device Model']
+
+                return specs['Vendor'] + ' ' + specs['Product']
+            except:
+                return None
+
+
+
         return sorted([{'device': disk[0],
+                 'model': get_model(disk[0]),
                  'size': int(disk[1]) * 1024,
                  'used': int(disk[2]) * 1024,
                  'available': int(disk[3]) * 1024,

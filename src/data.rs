@@ -44,6 +44,7 @@ pub struct DiskData {
 
     pub mount: String,
     pub device: String,
+    pub model: Option<String>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

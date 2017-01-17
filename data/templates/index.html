@@ -62,7 +62,7 @@
                     <p class="padded title">Disks</p>
 
                     {% for disk in host.disks %}
-                    <div class="disk padded" data-toggle="tooltip" title="{{disk.device}}">
+                    <div class="disk padded" data-toggle="tooltip" title="{{disk.device}} {% if disk.model %} ({{disk.model}}){% endif %}">
                         <span class="percentage {{ disk.used | tier(low=disk.size*0.5, high=disk.size*0.75) }}"
                               style="width: {{ disk.used * 100 / disk.size}}%"></span>
                         {{ disk.mount }}
