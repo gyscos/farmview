@@ -22,7 +22,8 @@ def main():
         'uptime': get_uptime(),
         'memory': get_memory_info(),
         'disks': get_disks(),
-        'network': get_traffic(args.iface)
+        'network': get_traffic(args.iface),
+        'power': get_power()
     }))
 
 
@@ -33,6 +34,15 @@ def get_hostname():
 def get_nproc():
     try:
         return int(run('nproc'))
+    except:
+        return None
+
+def get_power():
+    try:
+        line = run(['sudo', 'ipmitool', 'sensor', 'reading', 'Current 1'])
+        current = float(line.split('|')[1].strip())
+
+        return { 'current': current }
     except:
         return None
 

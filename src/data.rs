@@ -10,17 +10,25 @@ pub struct Data {
 pub struct HostData {
     #[serde(skip_serializing_if="Option::is_none")]
     pub hostname: Option<String>,
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub location: Option<String>,
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub nproc: Option<u8>,
     // Directly from the `uptime` command
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub uptime: Option<[f32; 3]>,
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub memory: Option<MemoryData>,
 
     pub disks: Vec<DiskData>,
+
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub power: Option<PowerData>,
+
     #[serde(skip_serializing_if="Option::is_none")]
     pub network: Option<NetworkData>,
 }
@@ -31,6 +39,11 @@ pub struct MemoryData {
     pub total: usize,
     // In kiB
     pub used: usize,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub struct PowerData {
+    pub current: f32,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]

@@ -18,12 +18,19 @@
             <div class="panel">
                 <div class="head panel-heading host-row padded">
                     <h4>
-                            {{ host.hostname }}
-                            {% if host.location %}
-                                <span style="float: right;">[{{ host.location }}]</span>
-                            {% endif %}
-                        </h4> {% if host.network.ip %}
-                    <p>{{ host.network.ip }}</p>{% endif %}
+                        {{ host.hostname }}
+
+                        {% if host.location %}
+                            <span style="float: right;">[{{ host.location }}]</span>
+                        {% endif %}
+                    </h4>
+                    {% if host.power %}
+                        <span style="float: right;">{{ host.power.current | round(precision=1) }} Amp</span>
+                    {% endif %}
+
+                    {% if host.network.ip %}
+                        <p>{{ host.network.ip }}</p>
+                    {% endif %}
                 </div>
 
                 {% if host.uptime %}

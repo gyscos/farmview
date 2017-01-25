@@ -35,4 +35,7 @@ refresh_delay = 30
     iface = "eno1"
 ```
 
-Retrieving network speeds requires "ifstat" to be installed on the target machines, but everything else will keep working if it's missing.
+Optional dependencies to be installed on the systems:
+
+* `ifstat` for network speeds
+* `ipmitool` for power consumption
