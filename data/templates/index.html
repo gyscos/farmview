@@ -38,7 +38,7 @@
                     <span class="percentage {{ host.uptime | first | tier(low=host.nproc*0.75, high=host.nproc) }}"
                           style="width: {{ host.uptime | first * 50 / host.nproc}}%"></span>
                     <span class="title">Load:</span>
-                    <ul style="float: right;">
+                    <ul style="float: right; padding-left: 0px;">
                         {% for uptime in host.uptime %}
                         <li class="value">{{ uptime | round(precision=1) }}</li>
                         {% endfor %}
