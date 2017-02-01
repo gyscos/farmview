@@ -22,7 +22,7 @@ def main():
         'uptime': get_uptime(),
         'memory': get_memory_info(),
         'disks': get_disks(),
-        'network': get_traffic(args.iface),
+        'network': get_network(args.iface),
         'power': get_power()
     }))
 
@@ -115,7 +115,7 @@ def get_disks():
         return []
 
 
-def get_traffic(iface):
+def get_network(iface):
     result = {}
 
     try:

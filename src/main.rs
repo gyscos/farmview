@@ -20,6 +20,7 @@ mod data;
 mod fetch;
 mod server;
 mod http;
+mod ips;
 
 use clap::{Arg, App};
 

@@ -1,5 +1,6 @@
 use config::{Config, HostConfig, AuthConfig, LocationConfig};
 use data::{Data, HostData};
+use ips::IpBlock;
 
 use std::error;
 use std::path;
@@ -123,7 +124,7 @@ fn find_location(ip: &str, locations: &[LocationConfig]) -> Option<String> {
 }
 
 fn match_ip(ip: &str, mask: &str) -> bool {
-    ip.starts_with(mask)
+    IpBlock::new(mask).matches(ip)
 }
 
 fn prepare_host(host: &HostConfig,
