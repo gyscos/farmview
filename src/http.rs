@@ -88,9 +88,9 @@ pub fn serve<F>(config: Config, config_sync: F)
         // We don't even set a authentication setting here.
         match server_.with_conf(|conf| {
             // Look for existing host
-            if let Some(_) = conf.hosts
+            if conf.hosts
                 .iter()
-                .find(|host| &host.address == name || &host.name == name) {
+                .any(|host| &host.address == name || &host.name == name) {
                 return Err(format!("Host {} already exists", name));
             }
 
@@ -100,7 +100,7 @@ pub fn serve<F>(config: Config, config_sync: F)
                 iface: "em1".to_string(),
                 ..HostConfig::default()
             });
-            config_sync(&conf);
+            config_sync(conf);
             Ok(())
         }) {
             Ok(_) => resp.send(b"added").ok(),
@@ -136,7 +136,7 @@ pub fn serve<F>(config: Config, config_sync: F)
                     return Err("Host not found".to_string());
                 }
             }
-            config_sync(&conf);
+            config_sync(conf);
             Ok(())
         }) {
             Ok(_) => resp.send(b"ok").ok(),

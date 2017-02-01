@@ -112,9 +112,9 @@ fn fetch_host_data(host: &HostConfig,
     let location = result.network
         .as_ref()
         .and_then(|n| n.ip.as_ref())
-        .and_then(|ip| find_location(&ip, locations));
+        .and_then(|ip| find_location(ip, locations));
 
-    result.location = location.or(host.location.clone());
+    result.location = location.or_else(|| host.location.clone());
 
     Ok(result)
 }

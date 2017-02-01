@@ -10,7 +10,7 @@ use std::time::Duration;
 pub struct Server {
     config: sync::Mutex<Config>,
     data: sync::RwLock<Data>,
-    running: sync::Mutex<bool>,
+    running: sync::atomic::AtomicBool,
 }
 
 /// Handles concurrent access to config/data.
@@ -27,7 +27,7 @@ impl Server {
             config: sync::Mutex::new(config),
             data: sync::RwLock::new(Data::default()),
             // Indicate that the refresh thread is running
-            running: sync::Mutex::new(true),
+            running: sync::atomic::AtomicBool::new(true),
         });
 
         // Spawn a refresh thread.
@@ -38,7 +38,7 @@ impl Server {
             cloned.refresh();
 
             // TODO: select! on a refresh channel and a timer.
-            while *cloned.running.lock().unwrap() {
+            while cloned.running.load(sync::atomic::Ordering::Relaxed) {
                 thread::sleep(Duration::from_secs(cloned.refresh_delay()));
                 cloned.refresh();
             }
@@ -94,8 +94,7 @@ impl Server {
     ///
     /// This is called automatically on drop.
     pub fn stop(&self) {
-        let mut running = self.running.lock().unwrap();
-        *running = false;
+        self.running.store(false, sync::atomic::Ordering::Relaxed);
     }
 }
 
