@@ -12,11 +12,11 @@ refresh_delay = 30
 # Locations help group servers by their IPs
 [[locations]]
     name = "Home"
-    ips = "192.168." # A simple prefix match
+    ips = "192.168.0.0/16"
 
 [[locations]]
     name = "Datacenter"
-    ips = "8.8."
+    ips = "8.8.8.0/24"
 
 [[hosts]]
     name = "Server 1"
