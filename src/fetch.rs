@@ -6,6 +6,7 @@ use std::error;
 use std::path;
 use std::io::Write;
 use std::net::TcpStream;
+use std::time::Duration;
 
 use rayon::prelude::*;
 use serde_json;
@@ -82,12 +83,14 @@ fn connect(host: &HostConfig,
            -> Result<(TcpStream, ssh2::Session), BoxedError> {
 
     // TODO: Don't panic on error
-    let tcp = try!(TcpStream::connect((&*host.address, 22)));
+    let tcp = TcpStream::connect((&*host.address, 22))?;
+    tcp.set_read_timeout(Some(Duration::from_secs(5)))?;
+    tcp.set_write_timeout(Some(Duration::from_secs(5)))?;
 
     // An error here means something very wrong is going on.
     let mut sess = ssh2::Session::new().unwrap();
-    try!(sess.handshake(&tcp));
-    try!(authenticate(&mut sess, host, default));
+    sess.handshake(&tcp)?;
+    authenticate(&mut sess, host, default)?;
 
     Ok((tcp, sess))
 }
@@ -114,7 +117,7 @@ fn fetch_host_data(host: &HostConfig,
         .and_then(|n| n.ip.as_ref())
         .and_then(|ip| find_location(ip, locations));
 
-    result.location = location.or_else(|| host.location.clone());
+    result.location = host.location.clone().or(location);
 
     Ok(result)
 }
