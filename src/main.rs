@@ -45,6 +45,8 @@ fn main() {
         None => default_config_path().unwrap(),
     };
 
+    println!("Farmview v{}", env!("CARGO_PKG_VERSION"));
+
     println!("Using config file {:?}", config_path);
     let config = match config::read_config(&config_path) {
         Ok(config) => config,
