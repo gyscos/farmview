@@ -5,31 +5,28 @@ version = "0.1.1"
 
 [dependencies]
 clap = "2.6.0"
+error-chain = "0.10.0"
 rayon = "0.6.0"
-serde = "0.8.20"
-serde_derive = "0.8.20"
-serde_json = "0.8.4"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 ssh2 = "0.3.1"
-tera = { git = "https://github.com/Keats/tera" }
-xdg = "2.0.0"
+tera = "0.8.0"
 time = "0.1"
+xdg = "2.0.0"
 
 [dependencies.handlebars]
 default-features = false
 features = ["serde_type"]
-version = "0.22.0"
+version = "0.25.0"
 
 [dependencies.hyper]
 default-features = false
-features = ["serde-serialization"]
-version = "0.9.11"
+version = "0.10"
 
 [dependencies.reroute]
 default-features = false
-features = ["serde-serialization"]
-version = "0.3.0"
+version = "0.3"
 
 [dependencies.toml]
-default-features = false
-features = ["serde"]
-version = "0.2"
+version = "0.3"

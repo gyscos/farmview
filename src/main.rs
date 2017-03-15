@@ -4,6 +4,9 @@ extern crate serde_derive;
 #[macro_use]
 extern crate tera;
 
+#[macro_use]
+extern crate error_chain;
+
 extern crate clap;
 extern crate serde;
 extern crate serde_json;
@@ -14,6 +17,10 @@ extern crate rayon;
 extern crate hyper;
 extern crate reroute;
 extern crate time;
+
+mod errors {
+    error_chain! {}
+}
 
 mod config;
 mod data;

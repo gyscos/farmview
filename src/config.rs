@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 use toml;
 use std::io::{self, Read, Write};
+use errors::*;
 
 // Serialization made with serde
 
@@ -54,21 +55,19 @@ pub struct AuthConfig {
     pub password: Option<String>,
 }
 
-pub fn read_config<P: AsRef<Path>>(filename: P) -> io::Result<Config> {
-    let mut file = try!(fs::File::open(filename));
+pub fn read_config<P: AsRef<Path>>(filename: P) -> Result<Config> {
+    let mut file = fs::File::open(filename).chain_err(|| "could not open config file")?;
     let mut buffer = String::new();
-    try!(file.read_to_string(&mut buffer));
-    toml::decode_str(&buffer).ok_or_else(|| {
-        io::Error::new(io::ErrorKind::Other, "Could not load toml.")
-    })
+    file.read_to_string(&mut buffer).chain_err(|| "could not read config")?;
+    toml::de::from_str(&buffer).chain_err(|| "could not parse config")
 }
 
 pub fn write_config<P: AsRef<Path>>(filename: P,
                                     config: &Config)
-                                    -> io::Result<()> {
-    let buffer = toml::encode_str(config);
-    let mut file = try!(fs::File::create(filename));
-    try!(file.write_all(buffer.as_bytes()));
+                                    -> Result<()> {
+    let buffer = toml::ser::to_vec(config).chain_err(|| "could not serialize config")?;
+    let mut file = fs::File::create(filename).chain_err(|| "could not create config file")?;
+    file.write_all(&buffer).chain_err(|| "could not write config")?;
 
     Ok(())
 }

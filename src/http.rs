@@ -1,5 +1,6 @@
 use config::{Config, HostConfig};
 use server;
+use errors::*;
 
 use std::sync::Arc;
 use std::collections::HashMap;
@@ -9,20 +10,25 @@ use reroute;
 use tera;
 
 fn tier(value: tera::Value,
-         params: HashMap<String, tera::Value>)
-         -> tera::Result<tera::Value> {
-    let low = params.get("low").and_then(|low: &tera::Value| low.as_f64()).unwrap_or(0.5);
-    let high = params.get("high").and_then(|high: &tera::Value| high.as_f64()).unwrap_or(0.75);
+        params: HashMap<String, tera::Value>)
+        -> tera::Result<tera::Value> {
+
+    let low = params.get("low")
+        .and_then(|low: &tera::Value| low.as_f64())
+        .unwrap_or(0.5);
+    let high = params.get("high")
+        .and_then(|high: &tera::Value| high.as_f64())
+        .unwrap_or(0.75);
 
     let value = try_get_value!("tier", "value", f64, value);
 
-    if value < low {
-        Ok(tera::to_value("low"))
+    Ok(if value < low {
+        serde_json::to_value("low")?
     } else if value > high {
-        Ok(tera::to_value("high"))
+        serde_json::to_value("high")?
     } else {
-        Ok(tera::to_value("medium"))
-    }
+        serde_json::to_value("medium")?
+    })
 }
 
 // We'll use a server::Server to actually process anything.
@@ -43,17 +49,17 @@ pub fn serve<F>(config: Config, config_sync: F)
 
     tera.register_filter("tier", tier);
 
-    tera.add_template("index.html",
+    tera.add_raw_template("index.html",
                       include_str!("../data/templates/index.html"))
         .unwrap();
-    tera.add_template("style.css",
+    tera.add_raw_template("style.css",
                       include_str!("../data/templates/style.css"))
         .unwrap();
     let server_ = server.clone();
     builder.get("^/$", move |_, resp, _| {
         // Return plain HTML
         let data = server_.latest_data();
-        let content = tera.value_render("index.html", &*data).unwrap();
+        let content = tera.render("index.html", &*data).unwrap();
         resp.send(content.as_bytes()).ok();
     });
 
@@ -88,18 +94,19 @@ pub fn serve<F>(config: Config, config_sync: F)
         // We don't even set a authentication setting here.
         match server_.with_conf(|conf| {
             // Look for existing host
-            if conf.hosts
-                .iter()
-                .any(|host| &host.address == name || &host.name == name) {
+            if conf.hosts.iter().any(|host| {
+                                         &host.address == name ||
+                                         &host.name == name
+                                     }) {
                 return Err(format!("Host {} already exists", name));
             }
 
             conf.hosts.push(HostConfig {
-                name: name.to_string(),
-                address: name.to_string(),
-                iface: "em1".to_string(),
-                ..HostConfig::default()
-            });
+                                name: name.to_string(),
+                                address: name.to_string(),
+                                iface: "em1".to_string(),
+                                ..HostConfig::default()
+                            });
             config_sync(conf);
             Ok(())
         }) {
@@ -115,9 +122,9 @@ pub fn serve<F>(config: Config, config_sync: F)
         let hostname = &captures.unwrap()[1];
         // Look for existing host
         match server_.with_conf(|conf| {
-            match conf.hosts
-                .iter_mut()
-                .find(|host| &host.address == hostname) {
+            match conf.hosts.iter_mut().find(|host| {
+                                                 &host.address == hostname
+                                             }) {
                 Some(host) => {
                     // Do the actual edit.
                     // Maybe directly a serialized HostConfig?
