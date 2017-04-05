@@ -14,6 +14,7 @@ extern crate toml;
 extern crate xdg;
 extern crate ssh2;
 extern crate rayon;
+extern crate crossbeam;
 extern crate hyper;
 extern crate reroute;
 extern crate time;

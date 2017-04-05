@@ -8,45 +8,58 @@ use std::io::Write;
 use std::net::TcpStream;
 use std::time::Duration;
 
+use crossbeam;
 use rayon::prelude::*;
 use serde_json;
 use ssh2;
 use time;
 
-pub fn fetch_data(config: &Config) -> Data {
-    let mut result: Vec<HostData> = config.hosts
-        .par_iter()
-        .filter_map(|host| {
-            match fetch_host_data(host,
-                                  config.default.as_ref(),
-                                  &config.locations) {
-                Ok(mut result) => {
-                    result.disks.retain(|data| {
-                        host.ignored_disks
-                            .as_ref()
-                            .map(|disks| {
-                                !disks.contains(&data.device) &&
-                                    !disks.contains(&data.mount)
-                            })
+fn fetch_clean_host_data(host: &HostConfig,
+                         default: Option<&AuthConfig>,
+                         locations: &[LocationConfig])
+                         -> Option<HostData> {
+    fetch_host_data(host, default, locations)
+        .ok()
+        .map(|mut result| {
+            result
+                .disks
+                .retain(|data| {
+                    host.ignored_disks
+                        .as_ref()
+                        .map(|disks| {
+                                 !disks.contains(&data.device) &&
+                                 !disks.contains(&data.mount)
+                             })
                         .unwrap_or(true)
-                    });
-                    Some(result)
-                },
-                Err(err) => {
-                    println!("Error fetching {}: {:?}", host.address, err);
-                    None
-                }
-            }
+                });
+            result
         })
-        .collect();
+}
+
+fn fill_result(result: &mut Vec<Option<HostData>>, config: &Config) {
+
+    let workspace: Vec<_> =
+        result.iter_mut().zip(config.hosts.iter()).collect();
+    crossbeam::scope(|scope| for (r, host) in workspace {
+                         scope.spawn(move || {
+            *r = fetch_clean_host_data(host, config.default.as_ref(), &config.locations);
+        });
+                     });
+}
+
+pub fn fetch_data(config: &Config) -> Data {
+    // Fetch each host in parallel
+    let mut result: Vec<_> = (1..config.hosts.len()).map(|_| None).collect();
+    fill_result(&mut result, config);
+    let mut result: Vec<_> = result.into_iter().filter_map(|r| r).collect();
 
     let empty = String::new();
     result.sort_by(|a, b| {
-        a.location
-            .as_ref()
-            .unwrap_or(&empty)
-            .cmp(b.location.as_ref().unwrap_or(&empty))
-    });
+                       a.location
+                           .as_ref()
+                           .unwrap_or(&empty)
+                           .cmp(b.location.as_ref().unwrap_or(&empty))
+                   });
 
     let now = time::now().to_timespec().sec;
     Data {
@@ -112,7 +125,8 @@ fn fetch_host_data(host: &HostConfig,
     // A JSON error here means the script went mad.
     // ... or just a connection issue maybe?
     let mut result: HostData = try!(serde_json::from_reader(channel));
-    let location = result.network
+    let location = result
+        .network
         .as_ref()
         .and_then(|n| n.ip.as_ref())
         .and_then(|ip| find_location(ip, locations));
@@ -123,7 +137,10 @@ fn fetch_host_data(host: &HostConfig,
 }
 
 fn find_location(ip: &str, locations: &[LocationConfig]) -> Option<String> {
-    locations.iter().find(|l| match_ip(ip, &l.ips)).map(|l| l.name.clone())
+    locations
+        .iter()
+        .find(|l| match_ip(ip, &l.ips))
+        .map(|l| l.name.clone())
 }
 
 fn match_ip(ip: &str, mask: &str) -> bool {
@@ -150,7 +167,9 @@ fn prepare_host(host: &HostConfig,
 pub fn prepare_hosts(config: &Config)
                      -> Vec<Option<Box<error::Error + Send + Sync>>> {
     let mut result = Vec::new();
-    config.hosts
+    // Prepare each host in parallel
+    config
+        .hosts
         .par_iter()
         .map(|host| prepare_host(host, config.default.as_ref()).err())
         .collect_into(&mut result);

@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use toml;
-use std::io::{self, Read, Write};
+use std::io::{Read, Write};
 use errors::*;
 
 // Serialization made with serde

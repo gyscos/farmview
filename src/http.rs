@@ -1,6 +1,6 @@
 use config::{Config, HostConfig};
 use server;
-use errors::*;
+// use errors::*;
 
 use std::sync::Arc;
 use std::collections::HashMap;
