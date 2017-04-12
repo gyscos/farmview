@@ -60,7 +60,7 @@ impl Server {
 
         {
             let mut config = self.current_conf();
-            try!(update(&mut config));
+            update(&mut config)?;
             prepare_hosts(&config);
         }
 

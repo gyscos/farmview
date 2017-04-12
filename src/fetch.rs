@@ -4,7 +4,7 @@ use ips::IpBlock;
 
 use std::error;
 use std::path;
-use std::io::Write;
+use std::io::{self, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
@@ -18,38 +18,37 @@ fn fetch_clean_host_data(host: &HostConfig,
                          default: Option<&AuthConfig>,
                          locations: &[LocationConfig])
                          -> Option<HostData> {
-    fetch_host_data(host, default, locations)
-        .ok()
-        .map(|mut result| {
-            result
-                .disks
-                .retain(|data| {
-                    host.ignored_disks
-                        .as_ref()
-                        .map(|disks| {
-                                 !disks.contains(&data.device) &&
-                                 !disks.contains(&data.mount)
-                             })
-                        .unwrap_or(true)
-                });
-            result
-        })
+    fetch_host_data(host, default, locations).ok().map(|mut result| {
+        result.disks.retain(|data| {
+            host.ignored_disks
+                .as_ref()
+                .map(|disks| {
+                         !disks.contains(&data.device) &&
+                         !disks.contains(&data.mount)
+                     })
+                .unwrap_or(true)
+        });
+        result
+    })
 }
 
 fn fill_result(result: &mut Vec<Option<HostData>>, config: &Config) {
 
-    let workspace: Vec<_> =
-        result.iter_mut().zip(config.hosts.iter()).collect();
-    crossbeam::scope(|scope| for (r, host) in workspace {
-                         scope.spawn(move || {
-            *r = fetch_clean_host_data(host, config.default.as_ref(), &config.locations);
-        });
-                     });
+    let default = config.default.as_ref();
+    let locations = &config.locations;
+    let iter = result.iter_mut().zip(config.hosts.iter());
+    crossbeam::scope(|scope| {
+        for (r, host) in iter {
+            scope.spawn(move || {
+                *r = fetch_clean_host_data(host, default, locations);
+            });
+        }
+    });
 }
 
 pub fn fetch_data(config: &Config) -> Data {
     // Fetch each host in parallel
-    let mut result: Vec<_> = (1..config.hosts.len()).map(|_| None).collect();
+    let mut result: Vec<_> = config.hosts.iter().map(|_| None).collect();
     fill_result(&mut result, config);
     let mut result: Vec<_> = result.into_iter().filter_map(|r| r).collect();
 
@@ -77,13 +76,13 @@ fn authenticate(sess: &mut ssh2::Session,
     if let Some(auth) = host.auth.as_ref().or(default) {
         if let Some(ref password) = auth.password {
             // Maybe we log in with a password?
-            try!(sess.userauth_password(&auth.login, password));
+            sess.userauth_password(&auth.login, password)?;
         } else if let Some(ref keypair) = auth.keypair {
             // Or maybe with an identity file?
-            try!(sess.userauth_pubkey_file(&auth.login,
+            sess.userauth_pubkey_file(&auth.login,
                                            None,
                                            path::Path::new(keypair),
-                                           None));
+                                           None)?;
         }
     }
     Ok(())
@@ -101,7 +100,9 @@ fn connect(host: &HostConfig,
     tcp.set_write_timeout(Some(Duration::from_secs(5)))?;
 
     // An error here means something very wrong is going on.
-    let mut sess = ssh2::Session::new().unwrap();
+    let mut sess = ssh2::Session::new().ok_or_else(||
+                        io::Error::new(io::ErrorKind::Other,
+                                       "Could not create ssh session"))?;
     sess.handshake(&tcp)?;
     authenticate(&mut sess, host, default)?;
 
@@ -118,13 +119,13 @@ fn fetch_host_data(host: &HostConfig,
     // because on drop it closes the connection.
     // But we're not using it, so an underscore
     // will avoid `unused` warnings.
-    let (_tcp, sess) = try!(connect(host, default));
+    let (_tcp, sess) = connect(host, default)?;
 
-    let mut channel = try!(sess.channel_session());
-    try!(channel.exec(&format!("./fetch.py {}", host.iface)));
+    let mut channel = sess.channel_session()?;
+    channel.exec(&format!("./fetch.py {}", host.iface))?;
     // A JSON error here means the script went mad.
     // ... or just a connection issue maybe?
-    let mut result: HostData = try!(serde_json::from_reader(channel));
+    let mut result: HostData = serde_json::from_reader(channel)?;
     let location = result
         .network
         .as_ref()
@@ -155,12 +156,12 @@ fn prepare_host(host: &HostConfig,
     let script_data = include_str!("../data/fetch.py");
 
     // `tcp` needs to survive the scope, because on drop it closes the connection.
-    let (_tcp, sess) = try!(connect(host, default));
-    let mut remote_file = try!(sess.scp_send(path::Path::new("fetch.py"),
+    let (_tcp, sess) = connect(host, default)?;
+    let mut remote_file = sess.scp_send(path::Path::new("fetch.py"),
                                              0o755,
                                              script_data.len() as u64,
-                                             None));
-    try!(remote_file.write_all(script_data.as_bytes()));
+                                             None)?;
+    remote_file.write_all(script_data.as_bytes())?;
     Ok(())
 }
 
