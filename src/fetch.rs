@@ -103,6 +103,7 @@ fn connect(host: &HostConfig,
     let mut sess = ssh2::Session::new().ok_or_else(||
                         io::Error::new(io::ErrorKind::Other,
                                        "Could not create ssh session"))?;
+    sess.set_timeout(5000);
     sess.handshake(&tcp)?;
     authenticate(&mut sess, host, default)?;
 
