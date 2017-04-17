@@ -96,14 +96,15 @@ fn connect(host: &HostConfig,
 
     // TODO: Don't panic on error
     let tcp = TcpStream::connect((&*host.address, 22))?;
-    tcp.set_read_timeout(Some(Duration::from_secs(5)))?;
-    tcp.set_write_timeout(Some(Duration::from_secs(5)))?;
+    tcp.set_read_timeout(Some(Duration::from_secs(15)))?;
+    tcp.set_write_timeout(Some(Duration::from_secs(15)))?;
 
     // An error here means something very wrong is going on.
     let mut sess = ssh2::Session::new().ok_or_else(||
                         io::Error::new(io::ErrorKind::Other,
                                        "Could not create ssh session"))?;
-    sess.set_timeout(5000);
+    // 15,000 ms = 15s
+    sess.set_timeout(15_000);
     sess.handshake(&tcp)?;
     authenticate(&mut sess, host, default)?;
 
