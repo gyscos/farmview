@@ -2,7 +2,7 @@
 pub struct Data {
     pub hosts: Vec<HostData>,
 
-    pub update_time: i64,
+    pub update_time: String,
 }
 
 /// This is what's produced by `fetch_data` regularly.

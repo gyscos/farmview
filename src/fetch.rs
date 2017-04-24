@@ -60,7 +60,7 @@ pub fn fetch_data(config: &Config) -> Data {
                            .cmp(b.location.as_ref().unwrap_or(&empty))
                    });
 
-    let now = time::now().to_timespec().sec;
+    let now = format!("{}", time::now().rfc3339());
     Data {
         hosts: result,
         update_time: now,
