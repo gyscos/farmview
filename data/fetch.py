@@ -126,8 +126,8 @@ def get_network(iface):
 
     try:
         tokens = run(['ifstat', '-i', iface, '5', '1']).split('\n')[2].split()
-        result['rx'] = float(tokens[0]) * 1024
-        result['tx'] = float(tokens[1]) * 1024
+        result['rx'] = int(float(tokens[0]) * 1024)
+        result['tx'] = int(float(tokens[1]) * 1024)
     except:
         pass
 

@@ -7,19 +7,18 @@ version = "0.1.1"
 clap = "2.6.0"
 crossbeam = "0.2.10"
 error-chain = "0.10.0"
-rayon = "0.6.0"
-serde = "0.9"
-serde_derive = "0.9"
-serde_json = "0.9"
+rayon = "0.7.1"
+serde = "1.0.8"
+serde_derive = "1.0.8"
+serde_json = "1.0.2"
 ssh2 = "0.3.1"
-tera = "0.8.0"
+tera = "0.10.6"
 time = "0.1"
+toml = "0.4.1"
 xdg = "2.0.0"
 
 [dependencies.handlebars]
-default-features = false
-features = ["serde_type"]
-version = "0.25.0"
+version = "0.26.0"
 
 [dependencies.hyper]
 default-features = false
@@ -27,7 +26,4 @@ version = "0.10"
 
 [dependencies.reroute]
 default-features = false
-version = "0.3"
-
-[dependencies.toml]
 version = "0.3"

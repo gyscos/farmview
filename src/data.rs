@@ -62,12 +62,13 @@ pub struct DiskData {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct NetworkData {
-    // In kB/s
+    // In B/s
     #[serde(skip_serializing_if="Option::is_none")]
-    pub rx: Option<f32>,
-    // In kB/s
+    pub rx: Option<usize>,
+
+    // In B/s
     #[serde(skip_serializing_if="Option::is_none")]
-    pub tx: Option<f32>,
+    pub tx: Option<usize>,
 
     #[serde(skip_serializing_if="Option::is_none")]
     pub ip: Option<String>,
