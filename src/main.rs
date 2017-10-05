@@ -8,7 +8,6 @@ extern crate tera;
 extern crate error_chain;
 
 extern crate clap;
-extern crate serde;
 extern crate serde_json;
 extern crate toml;
 extern crate xdg;

@@ -23,7 +23,8 @@ def main():
         'memory': get_memory_info(),
         'disks': get_disks(),
         'network': get_network(args.iface),
-        'power': get_power()
+        'power': get_power(),
+        'gpu': get_gpu(),
     }))
 
 
@@ -132,6 +133,14 @@ def get_network(iface):
         pass
 
     return result
+
+
+def get_gpu():
+    try:
+        gpus = json.loads(run(['gpustat', '--json']))['gpus']
+        return gpus
+    except:
+        return []
 
 
 if __name__ == '__main__':

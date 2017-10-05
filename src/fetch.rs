@@ -1,4 +1,4 @@
-use config::{Config, HostConfig, AuthConfig, LocationConfig};
+use config::{AuthConfig, Config, HostConfig, LocationConfig};
 use data::{Data, HostData};
 use ips::IpBlock;
 
@@ -14,35 +14,39 @@ use serde_json;
 use ssh2;
 use time;
 
-fn fetch_clean_host_data(host: &HostConfig,
-                         default: Option<&AuthConfig>,
-                         locations: &[LocationConfig])
-                         -> Option<HostData> {
-    fetch_host_data(host, default, locations).ok().map(|mut result| {
-        result.disks.retain(|data| {
-            host.ignored_disks
-                .as_ref()
-                .map(|disks| {
-                         !disks.contains(&data.device) &&
-                         !disks.contains(&data.mount)
-                     })
-                .unwrap_or(true)
-        });
-        result
-    })
+fn fetch_clean_host_data(
+    host: &HostConfig,
+    default: Option<&AuthConfig>,
+    locations: &[LocationConfig],
+) -> Option<HostData> {
+    match fetch_host_data(host, default, locations) {
+        Ok(mut result) => {
+            result.disks.retain(|data| {
+                host.ignored_disks
+                    .as_ref()
+                    .map(|disks| {
+                        !disks.contains(&data.device) &&
+                            !disks.contains(&data.mount)
+                    })
+                    .unwrap_or(true)
+            });
+            Some(result)
+        }
+        Err(e) => {
+            println!("Error with {}: {:?}", host.name, e);
+            None
+        }
+    }
 }
 
 fn fill_result(result: &mut Vec<Option<HostData>>, config: &Config) {
-
     let default = config.default.as_ref();
     let locations = &config.locations;
     let iter = result.iter_mut().zip(config.hosts.iter());
-    crossbeam::scope(|scope| {
-        for (r, host) in iter {
-            scope.spawn(move || {
-                *r = fetch_clean_host_data(host, default, locations);
-            });
-        }
+    crossbeam::scope(|scope| for (r, host) in iter {
+        scope.spawn(move || {
+            *r = fetch_clean_host_data(host, default, locations);
+        });
     });
 }
 
@@ -54,11 +58,11 @@ pub fn fetch_data(config: &Config) -> Data {
 
     let empty = String::new();
     result.sort_by(|a, b| {
-                       a.location
-                           .as_ref()
-                           .unwrap_or(&empty)
-                           .cmp(b.location.as_ref().unwrap_or(&empty))
-                   });
+        a.location
+            .as_ref()
+            .unwrap_or(&empty)
+            .cmp(b.location.as_ref().unwrap_or(&empty))
+    });
 
     let now = format!("{}", time::now().rfc3339());
     Data {
@@ -67,11 +71,11 @@ pub fn fetch_data(config: &Config) -> Data {
     }
 }
 
-fn authenticate(sess: &mut ssh2::Session,
-                host: &HostConfig,
-                default: Option<&AuthConfig>)
-                -> Result<(), ssh2::Error> {
-
+fn authenticate(
+    sess: &mut ssh2::Session,
+    host: &HostConfig,
+    default: Option<&AuthConfig>,
+) -> Result<(), ssh2::Error> {
     // Do we have an authentication? Or do we have a default one?
     if let Some(auth) = host.auth.as_ref().or(default) {
         if let Some(ref password) = auth.password {
@@ -79,10 +83,12 @@ fn authenticate(sess: &mut ssh2::Session,
             sess.userauth_password(&auth.login, password)?;
         } else if let Some(ref keypair) = auth.keypair {
             // Or maybe with an identity file?
-            sess.userauth_pubkey_file(&auth.login,
-                                           None,
-                                           path::Path::new(keypair),
-                                           None)?;
+            sess.userauth_pubkey_file(
+                &auth.login,
+                None,
+                path::Path::new(keypair),
+                None,
+            )?;
         }
     }
     Ok(())
@@ -90,19 +96,19 @@ fn authenticate(sess: &mut ssh2::Session,
 
 type BoxedError = Box<error::Error + Send + Sync>;
 
-fn connect(host: &HostConfig,
-           default: Option<&AuthConfig>)
-           -> Result<(TcpStream, ssh2::Session), BoxedError> {
-
+fn connect(
+    host: &HostConfig,
+    default: Option<&AuthConfig>,
+) -> Result<(TcpStream, ssh2::Session), BoxedError> {
     // TODO: Don't panic on error
     let tcp = TcpStream::connect((&*host.address, 22))?;
     tcp.set_read_timeout(Some(Duration::from_secs(15)))?;
     tcp.set_write_timeout(Some(Duration::from_secs(15)))?;
 
     // An error here means something very wrong is going on.
-    let mut sess = ssh2::Session::new().ok_or_else(||
-                        io::Error::new(io::ErrorKind::Other,
-                                       "Could not create ssh session"))?;
+    let mut sess = ssh2::Session::new().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::Other, "Could not create ssh session")
+    })?;
     // 15,000 ms = 15s
     sess.set_timeout(15_000);
     sess.handshake(&tcp)?;
@@ -112,11 +118,11 @@ fn connect(host: &HostConfig,
 }
 
 
-fn fetch_host_data(host: &HostConfig,
-                   default: Option<&AuthConfig>,
-                   locations: &[LocationConfig])
-                   -> Result<HostData, Box<error::Error + Send + Sync>> {
-
+fn fetch_host_data(
+    host: &HostConfig,
+    default: Option<&AuthConfig>,
+    locations: &[LocationConfig],
+) -> Result<HostData, Box<error::Error + Send + Sync>> {
     // `tcp` needs to survive the scope,
     // because on drop it closes the connection.
     // But we're not using it, so an underscore
@@ -150,25 +156,28 @@ fn match_ip(ip: &str, mask: &str) -> bool {
     IpBlock::new(mask).matches(ip)
 }
 
-fn prepare_host(host: &HostConfig,
-                default: Option<&AuthConfig>)
-                -> Result<(), Box<error::Error + Send + Sync>> {
-
+fn prepare_host(
+    host: &HostConfig,
+    default: Option<&AuthConfig>,
+) -> Result<(), Box<error::Error + Send + Sync>> {
     // Directly include the script in the executable
     let script_data = include_str!("../data/fetch.py");
 
     // `tcp` needs to survive the scope, because on drop it closes the connection.
     let (_tcp, sess) = connect(host, default)?;
-    let mut remote_file = sess.scp_send(path::Path::new("fetch.py"),
-                                             0o755,
-                                             script_data.len() as u64,
-                                             None)?;
+    let mut remote_file = sess.scp_send(
+        path::Path::new("fetch.py"),
+        0o755,
+        script_data.len() as u64,
+        None,
+    )?;
     remote_file.write_all(script_data.as_bytes())?;
     Ok(())
 }
 
-pub fn prepare_hosts(config: &Config)
-                     -> Vec<Option<Box<error::Error + Send + Sync>>> {
+pub fn prepare_hosts(
+    config: &Config,
+) -> Vec<Option<Box<error::Error + Send + Sync>>> {
     let mut result = Vec::new();
     // Prepare each host in parallel
     config
