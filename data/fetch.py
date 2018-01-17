@@ -38,12 +38,13 @@ def get_nproc():
     except:
         return None
 
+
 def get_power():
     try:
         line = run(['sudo', 'ipmitool', 'sensor', 'reading', 'Current 1'])
         current = float(line.split('|')[1].strip())
 
-        return { 'current': current }
+        return {'current': current}
     except:
         return None
 
@@ -79,12 +80,25 @@ def get_memory_info():
 
 def get_disks():
     try:
-        devices = json.loads(run(['lsblk', '--json', '-b', '-p']))['blockdevices']
+        try:
+            devices = json.loads(
+                run(['lsblk', '--json', '-b', '-p']))['blockdevices']
+        except:
+            lines = run(
+                ['lsblk', '-b', '-P', '-oNAME,MOUNTPOINT,MODEL,SIZE']).split('\n')
+            lines = [line.split('"') for line in lines if line]
+
+            devices = [{
+                'name': '/dev/' + line[1],
+                'mountpoint': line[3],
+                'model': line[5],
+                'size': int(line[7])} for line in lines]
 
         def get_mounts():
-            mounts = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
+            mounts = [line.split()
+                      for line in run(['df', '-P']).split('\n')[1:]]
             mounts = [mount for mount in mounts
-                     if mount and not mount[0] in ["tmpfs", "udev", "cgmfs", "none"]]
+                      if mount and not mount[0] in ["tmpfs", "udev", "cgmfs", "none"]]
             return {mount[0]: {
                     'size': int(mount[1]) * 1024,
                     'used': int(mount[2]) * 1024,
@@ -109,7 +123,6 @@ def get_disks():
 
             return result
 
-
         def find_largest(device):
             max_size = int(device['size'])
             largest = device
@@ -123,7 +136,6 @@ def get_disks():
                         largest = candidate
 
             return largest
-
 
         def select_devices(device):
             mounted = find_mounted(device)
@@ -142,7 +154,6 @@ def get_disks():
                 child['attrs'] = get_attrs(device['name'])
             return devices
 
-
         def get_model(device):
             try:
                 while device[-1].isdigit():
@@ -152,7 +163,7 @@ def get_disks():
 
                 def to_spec(line):
                     colon = line.index(':')
-                    return (line[:colon], line[colon+1:].strip())
+                    return (line[:colon], line[colon + 1:].strip())
 
                 specs = [to_spec(line) for line in lines if ':' in line]
                 specs = {spec[0]: spec[1] for spec in specs}
@@ -170,6 +181,7 @@ def get_disks():
                     device = device[:-1]
 
                 lines = run(['sudo', 'smartctl', '-A', device]).split('\n')
+
                 def to_attr(line):
                     tokens = line.split()
                     return (tokens[1], {'value': tokens[3], 'raw': ' '.join(tokens[9:])})
@@ -182,7 +194,6 @@ def get_disks():
             except:
                 return None
 
-
         return sorted([result for device in devices for result in with_device(device)], key=lambda device: device['mountpoint'])
     except:
         return []
@@ -192,7 +203,8 @@ def get_network(iface):
     result = {}
 
     try:
-        network_ip = run(['ip', 'addr', 'show', iface, 'scope', 'global']).split('\n')[2].split()[1]
+        network_ip = run(['ip', 'addr', 'show', iface, 'scope', 'global']).split('\n')[
+            2].split()[1]
         result['ip'] = network_ip.split('/')[0]
     except:
         pass

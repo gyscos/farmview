@@ -28,6 +28,7 @@ mod fetch;
 mod server;
 mod http;
 mod ips;
+mod slack;
 
 use clap::{Arg, App};
 

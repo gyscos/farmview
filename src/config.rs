@@ -16,9 +16,18 @@ pub struct Config {
     pub default: Option<AuthConfig>,
 
     pub hosts: Vec<HostConfig>,
+
+    pub slack: Option<SlackConfig>,
+
     // Seconds between two refresh rates
     #[serde(skip_serializing_if="Option::is_none")]
     pub refresh_delay: Option<u64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct SlackConfig {
+    pub channel: String,
+    pub hook: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
