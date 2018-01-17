@@ -17,6 +17,7 @@ extern crate crossbeam;
 extern crate hyper;
 extern crate reroute;
 extern crate time;
+extern crate openssl_probe;
 
 mod errors {
     error_chain! {}
@@ -64,6 +65,7 @@ fn main() {
         }
     };
 
+    openssl_probe::init_ssl_cert_env_vars();
 
     // And off we go!
     http::serve(config, move |config| {
