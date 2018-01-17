@@ -109,14 +109,19 @@ impl Server {
                                 }
                             }
                             warnings_sent.insert(key, Instant::now());
-                            ::slack::send_alert(
+                            if let Err(err) = ::slack::send_alert(
                                 &slack.hook,
                                 &slack.channel,
                                 hostname,
                                 &disk.name,
                                 &disk.mountpoint,
                                 (100 * used) / size,
-                            ).unwrap();
+                            ) {
+                                println!(
+                                    "Error sending slack notification: {}",
+                                    err
+                                );
+                            }
                         }
                     }
                 }
