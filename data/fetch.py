@@ -79,14 +79,75 @@ def get_memory_info():
 
 def get_disks():
     try:
-        disks = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
-        disks = [disk for disk in disks
-                 if disk and not disk[0] in ["tmpfs", "udev", "cgmfs", "none"]]
+        devices = json.loads(run(['lsblk', '--json', '-b', '-p']))['blockdevices']
+
+        def get_mounts():
+            mounts = [line.split() for line in run(['df', '-P']).split('\n')[1:]]
+            mounts = [mount for mount in mounts
+                     if mount and not mount[0] in ["tmpfs", "udev", "cgmfs", "none"]]
+            return {mount[0]: {
+                    'size': int(mount[1]) * 1024,
+                    'used': int(mount[2]) * 1024,
+                    'available': int(mount[3]) * 1024} for mount in mounts}
+
+        mounts = get_mounts()
+
+        # For each device:
+        # - If itself or any child is mounted, only select the mounted one
+        # - If any child, pick the largest. Otherwise pick self
+        # Return those as unmounted.
+        def find_mounted(device):
+            result = []
+
+            if device['name'] in mounts:
+                # This is it!
+                result += [device]
+
+            if 'children' in device:
+                for child in device['children']:
+                    result += find_mounted(child)
+
+            return result
+
+
+        def find_largest(device):
+            max_size = int(device['size'])
+            largest = device
+
+            if 'children' in device:
+                for child in device['children']:
+                    candidate = find_largest(child)
+                    size = int(candidate['size'])
+                    if size > max_size:
+                        max_size = size
+                        largest = candidate
+
+            return largest
+
+
+        def select_devices(device):
+            mounted = find_mounted(device)
+            if mounted is not None:
+                for mount in mounted:
+                    mount.update(mounts[mount['name']])
+                return mounted
+
+            largest = find_largest(device)
+            return [largest]
+
+        def with_device(device):
+            devices = select_devices(device)
+            for child in devices:
+                child['model'] = get_model(device['name'])
+                child['attrs'] = get_attrs(device['name'])
+            return devices
+
 
         def get_model(device):
-            fallback = None
-
             try:
+                while device[-1].isdigit():
+                    device = device[:-1]
+
                 lines = run(['sudo', 'smartctl', '-i', device]).split('\n')
 
                 def to_spec(line):
@@ -103,15 +164,26 @@ def get_disks():
             except:
                 return None
 
+        def get_attrs(device):
+            try:
+                while device[-1].isdigit():
+                    device = device[:-1]
+
+                lines = run(['sudo', 'smartctl', '-A', device]).split('\n')
+                def to_attr(line):
+                    tokens = line.split()
+                    return (tokens[1], {'value': tokens[3], 'raw': ' '.join(tokens[9:])})
+
+                # print(lines)
+                attrs = [to_attr(line) for line in lines[7:] if line]
+                # print(attrs)
+                attrs = {attr[0]: attr[1] for attr in attrs}
+                return attrs
+            except:
+                return None
 
 
-        return sorted([{'device': disk[0],
-                 'model': get_model(disk[0]),
-                 'size': int(disk[1]) * 1024,
-                 'used': int(disk[2]) * 1024,
-                 'available': int(disk[3]) * 1024,
-                 'mount': disk[5]} for disk in disks],
-                 key = lambda disk: disk['mount'])
+        return sorted([result for device in devices for result in with_device(device)], key=lambda device: device['mountpoint'])
     except:
         return []
 

@@ -25,8 +25,8 @@ fn fetch_clean_host_data(
                 host.ignored_disks
                     .as_ref()
                     .map(|disks| {
-                        !disks.contains(&data.device) &&
-                            !disks.contains(&data.mount)
+                        !disks.contains(&data.name) &&
+                            !disks.contains(&data.mountpoint)
                     })
                     .unwrap_or(true)
             });

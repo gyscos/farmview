@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Data {
     pub hosts: Vec<HostData>,
@@ -47,17 +49,26 @@ pub struct PowerData {
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
+pub struct Attribute {
+    pub value: String,
+    pub raw: String,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct DiskData {
     // In bytes
-    pub size: usize,
+    pub size: Option<usize>,
     // In bytes
-    pub available: usize,
+    pub available: Option<usize>,
     // In bytes
-    pub used: usize,
+    pub used: Option<usize>,
 
-    pub mount: String,
-    pub device: String,
+    pub mountpoint: String,
+    pub name: String,
+
     pub model: Option<String>,
+
+    pub attrs: Option<HashMap<String, Attribute>>,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
